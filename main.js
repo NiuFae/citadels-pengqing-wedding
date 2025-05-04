@@ -1749,5 +1749,228 @@ function startArchitectTurn() {
   // showArchitectPanel();
 }
 
+function startArchitectTurn() {
+  showArchitectPanel();
+}
+
+function showArchitectPanel() {
+  playSound('magic');
+  cardArea.innerHTML = '';
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 建筑师虚拟玩家对象
+  const architect = {
+    name: "李琪",
+    role: "建筑师",
+    roleKey: "architect",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4), // 随机4张
+    built: []
+  };
+
+  // 建筑师信息弹窗
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/architect.jpg" alt="建筑师" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">李琪（建筑师）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('architect')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">×${architect.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="architect-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${architect.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <button class="main-btn" id="architect-skill-btn" style="margin-top:10px;">建筑师发动技能</button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 禁止查看建筑师手牌
+  setTimeout(() => {
+    const handArea = document.getElementById('architect-hand-area');
+    if (handArea) {
+      handArea.onclick = () => {
+        const tip = document.createElement('div');
+        tip.style.position = 'fixed';
+        tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+        tip.style.background = 'rgba(0,0,0,0.85)';
+        tip.style.zIndex = '6000';
+        tip.style.display = 'flex';
+        tip.style.alignItems = 'center';
+        tip.style.justifyContent = 'center';
+        tip.innerHTML = `
+          <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+            <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+            <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+          </div>
+        `;
+        document.body.appendChild(tip);
+        playSound('notification');
+      };
+    }
+  }, 0);
+
+  // 技能按钮
+  document.getElementById('architect-skill-btn').onclick = () => {
+    playSound('magic');
+    // 弹窗提示技能发动
+    popup.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">建筑师发动技能，额外抽2张地区卡</div>
+        <div id="architect-draw-cards" style="display:flex;gap:10px;margin-bottom:18px;"></div>
+        <button class="main-btn" id="architect-bless-btn">建筑师说：祝你们幸福！</button>
+      </div>
+    `;
+    // 动画抽2张卡
+    setTimeout(() => {
+      const deck = generateDistrictDeck();
+      const newCards = [deck.pop(), deck.pop()];
+      architect.hand.push(...newCards);
+      const drawDiv = document.getElementById('architect-draw-cards');
+      if (drawDiv) {
+        newCards.forEach(card => {
+          const cardDiv = document.createElement('div');
+          cardDiv.style.display = 'flex';
+          cardDiv.style.flexDirection = 'column';
+          cardDiv.style.alignItems = 'center';
+          cardDiv.innerHTML = `
+            <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;animation:fadeInCard 0.7s;">
+            <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+          `;
+          drawDiv.appendChild(cardDiv);
+        });
+      }
+      // 手牌数量动画
+      setTimeout(() => {
+        playSound('success');
+        // 可以在信息面板刷新手牌数量
+        renderPlayerPanel(currentPlayerIdx);
+      }, 400);
+    }, 400);
+
+    document.getElementById('architect-bless-btn').onclick = () => {
+      showArchitectBlessingVideo(() => {
+        // 祝福视频关闭后，建筑师拿金币
+        popup.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+            <button class="main-btn" id="architect-get-coin-btn">建筑师选择拿取4枚金币</button>
+          </div>
+        `;
+        document.getElementById('architect-get-coin-btn').onclick = () => {
+          playSound('coin');
+          architect.coins += 4;
+          popup.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+              <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">建筑师获得4枚金币，现在有${architect.coins}枚金币</div>
+              <button class="main-btn" id="architect-build-btn">建筑师开始建造地区</button>
+            </div>
+          `;
+          document.getElementById('architect-build-btn').onclick = () => {
+            // 自动建造最多3个地区，总花费不超过当前金币
+            let total = 0, built = [];
+            for (let i = 0; i < architect.hand.length; i++) {
+              if (built.length < 3 && total + architect.hand[i].score <= architect.coins) {
+                built.push(architect.hand[i]);
+                total += architect.hand[i].score;
+              }
+            }
+            architect.built = built;
+            architect.coins -= total;
+            popup.innerHTML = `
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+                  建筑师建造了${built.length}个地区，总花费${total}金币，剩余${architect.coins}金币
+                </div>
+                <div style="display:flex;gap:10px;margin-bottom:12px;">
+                  ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+                    <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+                    <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+                  </div>`).join('')}
+                </div>
+                <button class="main-btn" id="architect-end-btn">建筑师行动结束</button>
+              </div>
+            `;
+            playSound('construct');
+            document.getElementById('architect-end-btn').onclick = () => {
+              popup.remove();
+              // 进入下一个角色流程
+              startWarlordTurn();
+            };
+          };
+        };
+      });
+    };
+  };
+}
+
+function showArchitectBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="architect-bless-video" src="assets/videos/architect.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="architect-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="architect-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('architect-bless-video');
+  document.getElementById('architect-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('architect-bless-close').onclick = () => {
+    popup.remove();
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="architect-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="architect-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('architect-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('architect-bless-close2').onclick = () => {
+      popup.remove();
+      if (onClose) onClose();
+    };
+  };
+}
+
+function startWarlordTurn() {
+  // TODO: 这里进入军阀流程
+  // showWarlordPanel();
+}
 
 
