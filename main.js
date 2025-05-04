@@ -1648,5 +1648,106 @@ function startMerchantTurn() {
   // showMerchantPanel();
 }
 
+function startMerchantTurn() {
+  showMerchantPanel();
+}
+
+function showMerchantPanel() {
+  playSound('notification'); // 进入商人回合音效
+  cardArea.innerHTML = '';
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 商人虚拟玩家对象
+  const merchant = {
+    name: "Cursor老师",
+    role: "商人",
+    roleKey: "merchant",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4), // 随机4张
+    built: []
+  };
+
+  // 商人信息弹窗
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/merchant.jpg" alt="商人" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">Cursor老师（商人）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('merchant')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">×${merchant.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="merchant-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${merchant.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <div style="color:#ffb347;font-size:1.15rem;font-weight:bold;margin:18px 0 12px 0;">
+        本轮商人已被刺杀，不能行动
+      </div>
+      <button class="main-btn" id="merchant-end-btn" style="margin-top:10px;">商人行动结束</button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 禁止查看商人手牌
+  setTimeout(() => {
+    const handArea = document.getElementById('merchant-hand-area');
+    if (handArea) {
+      handArea.onclick = () => {
+        const tip = document.createElement('div');
+        tip.style.position = 'fixed';
+        tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+        tip.style.background = 'rgba(0,0,0,0.85)';
+        tip.style.zIndex = '6000';
+        tip.style.display = 'flex';
+        tip.style.alignItems = 'center';
+        tip.style.justifyContent = 'center';
+        tip.innerHTML = `
+          <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+            <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+            <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+          </div>
+        `;
+        document.body.appendChild(tip);
+        playSound('notification');
+      };
+    }
+  }, 0);
+
+  // 被刺杀提示音效
+  setTimeout(() => {
+    playSound('magic');
+  }, 400);
+
+  // 行动结束按钮
+  document.getElementById('merchant-end-btn').onclick = () => {
+    popup.remove();
+    // 进入下一个角色流程
+    startArchitectTurn();
+  };
+}
+
+function startArchitectTurn() {
+  // TODO: 这里进入建筑师流程
+  // showArchitectPanel();
+}
+
 
 
