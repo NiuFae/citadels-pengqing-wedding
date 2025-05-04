@@ -429,6 +429,7 @@ function enterGameMain() {
   coinInfo.style.display = 'none';
   playerInfo.style.display = 'none';
   showDealIntro();
+  renderPlayerPanel(currentPlayerIdx); // <--- 新增
 }
 
 function showDealIntro() {
@@ -458,6 +459,7 @@ function showDealIntro() {
     // 直接进入抽卡动画
     showDealAnimation();
   }
+  renderPlayerPanel(currentPlayerIdx); // <--- 新增
 }
 
 function showDealAnimation() {
@@ -533,6 +535,7 @@ function showDealAnimation() {
     };
     actionArea.appendChild(nextBtn);
   }
+  renderPlayerPanel(currentPlayerIdx); // <--- 新增
 }
 
 function showCoinAnimation() {
@@ -602,13 +605,15 @@ function showCoinAnimation() {
       playSound('click');
       if (currentPlayerIdx === 0) {
         currentPlayerIdx = 1;
-        // 省略D页面，直接进入吴璨抽卡动画
         showDealAnimation();
+        renderPlayerPanel(currentPlayerIdx); // <--- 新增
       } else {
         coinInfo.style.display = '';
         playerInfo.style.display = '';
+        renderPlayerPanel(currentPlayerIdx); // <--- 新增
         // 你可以在这里继续开发主操作区
       }
+      renderPlayerPanel(currentPlayerIdx); // <--- 新增
     };
     actionArea.appendChild(nextBtn);
   }
