@@ -423,7 +423,7 @@ function showCoinAnimation() {
     const nextBtn = document.createElement('button');
     nextBtn.className = 'main-btn';
     if (currentPlayerIdx === 0) {
-      nextBtn.textContent = '接下来，请 吴璨 获得4枚金币';
+      nextBtn.textContent = '看看 吴璨 的运气如何';
     } else {
       nextBtn.textContent = '进入主游戏操作区';
     }
