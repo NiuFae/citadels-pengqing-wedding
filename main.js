@@ -1837,7 +1837,7 @@ function showArchitectPanel() {
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
         <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">建筑师发动技能，额外抽2张地区卡</div>
         <div id="architect-draw-cards" style="display:flex;gap:10px;margin-bottom:18px;"></div>
-        <button class="main-btn" id="architect-bless-btn">建筑师说：祝你们幸福！</button>
+        <button class="main-btn" id="architect-bless-btn">建筑师：“谢绝甜豆腐脑工程。”</button>
       </div>
     `;
     // 动画抽2张卡
