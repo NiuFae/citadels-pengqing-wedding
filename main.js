@@ -1,3 +1,159 @@
+// ========== 角色技能描述和祝福视频 ==========
+const roleSkills = {
+  assassin: "选择一个角色 (而非玩家) 并将其干掉。被暗杀的角色不可以出声。被干掉的角色因此而少了一个回合。",
+  thief: "选择并洗劫一个角色 (而非玩家)。当读出角色名字时，这名玩家要将自己所有金币交给盗贼。注意： 盗贼不能打劫刺客或者被刺客暗杀的角色。",
+  magician: "魔法师在自己回合任何时间都可以执行以下其中一项行动：1.与另一名玩家交换所有手牌(不包括桌子上已打出的地区卡)。如果魔法师手上没有牌，则当作是拿走任何一个玩家的手牌。或者2.选择弃掉手上一定数量的地区卡，然后从牌迭顶方抽回同等数量的地区卡。被弃掉的地区卡要放在牌堆最底处。",
+  king: "做国王的玩家首先拿取皇冠，在下一个回合国王是起始玩家。国王计算自己已经建设了的贵族地区 (金色)，每有一个贵族地区可得一枚金币。如果下一个回合没有人选择做国王，这个回合的国王可以在下一个回合继续持有皇冠。",
+  bishop: "做主教的玩家计算自己已经建设了的宗教地区 (蓝色)，每有一个宗教地区可得一枚金币。此外，军阀不可以攻打主教。",
+  merchant: "在回合开始时，除了选择拿2枚金币或者抽地区卡之外，商人还可以额外获得1枚金币。然后，商人计算自己已经建设了的商业地区 (绿色)，每有一个商业地区可得一枚金币。",
+  architect: "在回合开始时，建筑师除了选择拿2枚金币或者抽地区卡之外，还可以额外再抽2张地区卡。此外，建筑师可以在自己回合建设最多3个地区。",
+  warlord: "选择做军阀的玩家数自己已经建设了的军事地区(红色)，每有一个军事地区可得一枚金币。在回合结束时，军阀能够选择攻打并破坏任何一个地区。破坏价值1元的地区是免费的，破坏其它建筑费用较昂贵的地区则需要支付『建筑费用-1』的金币。例：领主破坏一个价值2枚金币的地区要支付1枚金币；领主破坏一个价值5枚金币的地区要支付4枚金币，如此类推。不过，正式规则中，如果有玩家已经建立了8个地区(将要完结游戏)，军阀就不能攻打该名玩家。",
+  queen: "如果皇后坐在国王旁边，就可以获得3枚金币，即使国王被暗杀了，你仍然可以使用这项能力。",
+  alchemist: "炼金术士可以拿回在这个回合中，建筑地区所需要的所有金币 (不包括其它开 支，例如不能拿回给税务员的1枚金币)。例：如果只得4枚金币，不可以先付4元，取回4元，再给4元去建设8元的地区，炼金术士最多只能建4元的地区，然后拿回4 元。",
+  navigator: "当执行完『抽牌/拿金币』这个行动之后，航海家可以拿取4枚金币或者抽4张地区卡。航海家不能建设任何地区。",
+  artist: "美术师可以美化自己一个或两个地区，方法是自己将金币放在地区之上。每个地区之上最多只能有一枚金币。",
+  wizard: "巫师可以观看另一个玩家的手牌，然后拿走一张。巫师可以将这张地区卡放在手上， 或支付建筑费用实时建设。如果立即建造，这不算做巫师的建筑动作，巫师还可以正常建造一个地区。此外，巫师可以建造相同的地区。",
+  diplomat: "选择做外交官的玩家计算自己已经建设了的军事地区(红色)，每有一个军事地区可得一枚金币。外交官还可以支付差额，与另外一个玩家交换一个地区。"
+};
+
+const roleVideos = {
+  thief: "assets/videos/thief.mp4",
+  magician: "assets/videos/magician.mp4",
+  bishop: "assets/videos/bishop.mp4",
+  architect: "assets/videos/architect.mp4",
+  warlord: "assets/videos/warlord.mp4",
+  alchemist: "assets/videos/alchemist.mp4",
+  navigator: "assets/videos/navigator.mp4",
+  artist: "assets/videos/artist.mp4",
+  wizard: "assets/videos/wizard.mp4",
+  diplomat: "assets/videos/diplomat.mp4"
+};
+
+// 角色中文名辅助
+function roleNameZh(role) {
+  const map = {
+    assassin: "刺客", thief: "盗贼", magician: "魔术师", king: "国王", bishop: "主教", merchant: "商人",
+    architect: "建筑师", warlord: "军阀", queen: "皇后", alchemist: "炼金术士", navigator: "航海家",
+    artist: "美术家", wizard: "巫师", diplomat: "外交官"
+  };
+  return map[role] || role;
+}
+
+// 玩家信息面板渲染
+function renderPlayerPanel(currentIdx = 0) {
+  const panel = document.getElementById('player-panel');
+  panel.innerHTML = '';
+  players.forEach((p, idx) => {
+    const block = document.createElement('div');
+    block.className = 'player-block' + (idx === currentIdx ? ' current' : '');
+    // 头部：角色卡牌+名字+角色+技能按钮
+    const header = document.createElement('div');
+    header.className = 'player-header';
+    header.innerHTML = `
+      <img class="player-role-img" src="assets/roles/${p.role.toLowerCase()}.jpg" alt="${p.role}">
+      <span class="player-name">${p.name}（${p.role}）</span>
+    `;
+    // 技能按钮
+    if (roleSkills[p.role.toLowerCase()]) {
+      const skillBtn = document.createElement('button');
+      skillBtn.className = 'skill-btn';
+      skillBtn.title = '查看技能';
+      skillBtn.innerHTML = '？';
+      skillBtn.onclick = (e) => {
+        e.stopPropagation();
+        showSkillPopup(p.role.toLowerCase());
+      };
+      header.appendChild(skillBtn);
+    }
+    block.appendChild(header);
+    // 金币
+    const coins = document.createElement('div');
+    coins.className = 'player-coins';
+    coins.innerHTML = `<img src="assets/others/coin.jpg" alt="金币"><span>${p.coins}</span>`;
+    block.appendChild(coins);
+    // 手牌
+    const hand = document.createElement('div');
+    hand.className = 'player-hand';
+    hand.innerHTML = `<img class="hand-img" src="assets/others/card_back.jpg" alt="手牌"><span class="hand-count">×${p.hand.length}</span>`;
+    hand.title = "点击查看手牌详情";
+    hand.onclick = () => showHandPopup(p);
+    block.appendChild(hand);
+    // 已建造
+    const built = document.createElement('div');
+    built.className = 'player-built';
+    if (p.built && p.built.length > 0) {
+      p.built.forEach(card => {
+        const img = document.createElement('img');
+        img.className = 'built-img';
+        img.src = card.img;
+        img.title = districtNameMap[card.name] || card.name;
+        built.appendChild(img);
+      });
+    } else {
+      built.innerHTML = '<span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>';
+    }
+    block.appendChild(built);
+    panel.appendChild(block);
+  });
+}
+
+// 技能描述弹窗
+function showSkillPopup(role) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.zIndex = '2000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="font-weight:bold;font-size:1.1rem;color:#ffe6b3;margin-bottom:8px;">${roleNameZh(role)} 技能说明</div>
+      <div style="color:#ffe6b3;font-size:1rem;line-height:1.7;margin-bottom:12px;">${roleSkills[role]}</div>
+      <button class="main-btn" style="margin:0 auto;" onclick="this.parentNode.parentNode.remove()">关闭</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  popup.onclick = (e) => { if (e.target === popup) popup.remove(); };
+}
+
+// 手牌弹窗
+function showHandPopup(player) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.zIndex = '2000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  let html = `<div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+    <div style="font-weight:bold;font-size:1.1rem;color:#ffe6b3;margin-bottom:8px;">${player.name} 的手牌</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;">`;
+  if (player.hand.length === 0) {
+    html += `<span style="color:#aaa;">（暂无手牌）</span>`;
+  } else {
+    player.hand.forEach(card => {
+      html += `<div style="display:flex;flex-direction:column;align-items:center;">
+        <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+      </div>`;
+    });
+  }
+  html += `</div>
+    <button class="main-btn" style="margin:0 auto;" onclick="this.parentNode.parentNode.remove()">关闭</button>
+  </div>`;
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+  popup.onclick = (e) => { if (e.target === popup) popup.remove(); };
+}
+
+// 在主游戏区流程每次切换玩家时调用
+// 例如：renderPlayerPanel(currentPlayerIdx);
+// 你可以在enterGameMain、showDealIntro、showDealAnimation、showCoinAnimation等流程合适位置调用
+
+
 // ========== 资源数据 ==========
 const rulesText = `欢迎来到富饶之城！<br><br>
 你和你的伴侣与其他12位玩家将作为本局游戏的主角，体验一场充满策略与惊喜的桌游之旅。<br><br>
