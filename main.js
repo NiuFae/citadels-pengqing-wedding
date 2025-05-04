@@ -170,9 +170,8 @@ toGameBtn.addEventListener('click', () => {
   if (currentDraw < roleDrawOrder.length) {
     renderRoleDraw();
   } else {
-    // TODO: 进入主游戏区
     showSection('game-section');
-    // 后续主游戏流程待补充
+    enterGameMain();
   }
 });
 
@@ -187,7 +186,91 @@ const districtNameMap = {
   smithy: "铁匠铺", keep: "堡垒", hauntedciry: "鬼城"
 };
 
-// 进入主游戏区时初始化（重写）
+// 玩家数据结构
+const players = [
+  {
+    name: "彭青",
+    role: "国王",
+    coins: 4,
+    hand: [],
+    built: []
+  },
+  {
+    name: "吴璨",
+    role: "皇后",
+    coins: 4,
+    hand: [],
+    built: []
+  }
+];
+
+// 洗牌算法
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// 生成完整的地区卡牌堆
+const districtCards = [
+  { name: "palace", score: 5, color: "yellow", img: "assets/cards/palace.jpg", count: 3 },
+  { name: "castle", score: 4, color: "yellow", img: "assets/cards/castle.jpg", count: 4 },
+  { name: "manor", score: 3, color: "yellow", img: "assets/cards/manor.jpg", count: 5 },
+  { name: "fortress", score: 5, color: "red", img: "assets/cards/fortress.jpg", count: 2 },
+  { name: "battlefield", score: 3, color: "red", img: "assets/cards/battlefield.jpg", count: 3 },
+  { name: "prison", score: 2, color: "red", img: "assets/cards/prison.jpg", count: 3 },
+  { name: "watchtower", score: 1, color: "red", img: "assets/cards/watchtower.jpg", count: 3 },
+  { name: "cathedral", score: 5, color: "blue", img: "assets/cards/cathedral.jpg", count: 2 },
+  { name: "monastery", score: 3, color: "blue", img: "assets/cards/monastery.jpg", count: 3 },
+  { name: "church", score: 2, color: "blue", img: "assets/cards/church.jpg", count: 3 },
+  { name: "temple", score: 1, color: "blue", img: "assets/cards/temple.jpg", count: 3 },
+  { name: "townhall", score: 5, color: "green", img: "assets/cards/townhall.jpg", count: 2 },
+  { name: "harbor", score: 4, color: "green", img: "assets/cards/harbor.jpg", count: 3 },
+  { name: "docks", score: 3, color: "green", img: "assets/cards/docks.jpg", count: 3 },
+  { name: "tradingpost", score: 2, color: "green", img: "assets/cards/tradingpost.jpg", count: 3 },
+  { name: "market", score: 2, color: "green", img: "assets/cards/market.jpg", count: 4 },
+  { name: "tavern", score: 1, color: "green", img: "assets/cards/tavern.jpg", count: 5 }
+  // ... 可继续补充紫色卡等
+];
+
+function generateDistrictDeck() {
+  let deck = [];
+  districtCards.forEach(card => {
+    for (let i = 0; i < card.count; i++) {
+      deck.push({
+        name: card.name,
+        score: card.score,
+        color: card.color,
+        img: card.img
+      });
+    }
+  });
+  return shuffle(deck);
+}
+
+// 发牌：每位玩家4张手牌
+function dealInitialCards() {
+  const deck = generateDistrictDeck();
+  for (let i = 0; i < players.length; i++) {
+    players[i].hand = [];
+    for (let j = 0; j < 4; j++) {
+      players[i].hand.push(deck.pop());
+    }
+    players[i].coins = 4;
+    players[i].built = [];
+  }
+}
+
+const playerInfo = document.getElementById('player-info');
+const coinInfo = document.getElementById('coin-info');
+const cardArea = document.getElementById('card-area');
+const actionArea = document.getElementById('action-area');
+
+let currentPlayerIdx = 0; // 0: 彭青, 1: 吴璨
+
 function enterGameMain() {
   dealInitialCards();
   currentPlayerIdx = 0;
@@ -228,8 +311,6 @@ function showDealIntro() {
   };
   actionArea.appendChild(dealBtn);
 }
-
-
 
 // ========== 主游戏区：发牌动画 ==========
 
@@ -370,7 +451,7 @@ function showCoinAnimation() {
     // 更新金币数
     document.getElementById('coin-count').textContent = players[currentPlayerIdx].coins;
 
-      // “继续”按钮
+    // “继续”按钮
     actionArea.innerHTML = '';
     const nextBtn = document.createElement('button');
     nextBtn.className = 'main-btn';
@@ -385,7 +466,9 @@ function showCoinAnimation() {
         currentPlayerIdx = 1;
         showDealIntro();
       } else {
-        renderGameMain();
+        // 这里后续可进入主操作区
+        // renderGameMain();
+        // 你可以在这里继续开发主操作区
       }
     };
     actionArea.appendChild(nextBtn);
