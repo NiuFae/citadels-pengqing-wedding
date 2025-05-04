@@ -176,146 +176,229 @@ toGameBtn.addEventListener('click', () => {
   }
 });
 
-// ========== 主游戏区：初始发牌与金币展示 ==========
+// ========== 主游戏区：发牌引导 ==========
 
-// 地区卡数据（示例，后续可扩展为完整卡组）
-const districtCards = [
-  { name: "palace", score: 5, color: "yellow", img: "assets/cards/palace.jpg", count: 3 },
-  { name: "castle", score: 4, color: "yellow", img: "assets/cards/castle.jpg", count: 4 },
-  { name: "manor", score: 3, color: "yellow", img: "assets/cards/manor.jpg", count: 5 },
-  { name: "fortress", score: 5, color: "red", img: "assets/cards/fortress.jpg", count: 2 },
-  { name: "battlefield", score: 3, color: "red", img: "assets/cards/battlefield.jpg", count: 3 },
-  { name: "prison", score: 2, color: "red", img: "assets/cards/prison.jpg", count: 3 },
-  { name: "watchtower", score: 1, color: "red", img: "assets/cards/watchtower.jpg", count: 3 },
-  { name: "cathedral", score: 5, color: "blue", img: "assets/cards/cathedral.jpg", count: 2 },
-  { name: "monastery", score: 3, color: "blue", img: "assets/cards/monastery.jpg", count: 3 },
-  { name: "church", score: 2, color: "blue", img: "assets/cards/church.jpg", count: 3 },
-  { name: "temple", score: 1, color: "blue", img: "assets/cards/temple.jpg", count: 3 },
-  { name: "townhall", score: 5, color: "green", img: "assets/cards/townhall.jpg", count: 2 },
-  { name: "harbor", score: 4, color: "green", img: "assets/cards/harbor.jpg", count: 3 },
-  { name: "docks", score: 3, color: "green", img: "assets/cards/docks.jpg", count: 3 },
-  { name: "tradingpost", score: 2, color: "green", img: "assets/cards/tradingpost.jpg", count: 3 },
-  { name: "market", score: 2, color: "green", img: "assets/cards/market.jpg", count: 4 },
-  { name: "tavern", score: 1, color: "green", img: "assets/cards/tavern.jpg", count: 5 },
-  // ... 可继续补充紫色卡等
-];
+// 地区卡英文名到中文名映射
+const districtNameMap = {
+  palace: "宫殿", castle: "城堡", manor: "庄园", fortress: "要塞", battlefield: "战场", prison: "监狱", watchtower: "了望塔",
+  cathedral: "大教堂", monastery: "修道院", church: "教堂", temple: "神庙", townhall: "市政厅", harbor: "港口",
+  docks: "船坞", tradingpost: "商栈", market: "集市", tavern: "酒馆", dragongate: "巨龙门", university: "大学",
+  greatwall: "长城", library: "图书馆", school: "学校", graveyard: "墓地", laboratory: "实验室", observatory: "天文台",
+  smithy: "铁匠铺", keep: "堡垒", hauntedciry: "鬼城"
+};
 
-// 玩家数据结构
-const players = [
-  {
-    name: "彭青",
-    role: "国王",
-    coins: 4,
-    hand: [],
-    built: []
-  },
-  {
-    name: "吴璨",
-    role: "皇后",
-    coins: 4,
-    hand: [],
-    built: []
-  }
-];
-
-// 洗牌算法
-function shuffle(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// 生成完整的地区卡牌堆
-function generateDistrictDeck() {
-  let deck = [];
-  districtCards.forEach(card => {
-    for (let i = 0; i < card.count; i++) {
-      deck.push({
-        name: card.name,
-        score: card.score,
-        color: card.color,
-        img: card.img
-      });
-    }
-  });
-  return shuffle(deck);
-}
-
-// 发牌：每位玩家4张手牌
-function dealInitialCards() {
-  const deck = generateDistrictDeck();
-  for (let i = 0; i < players.length; i++) {
-    players[i].hand = [];
-    for (let j = 0; j < 4; j++) {
-      players[i].hand.push(deck.pop());
-    }
-    players[i].coins = 4;
-    players[i].built = [];
-  }
-}
-
-// 渲染主游戏区
-const playerInfo = document.getElementById('player-info');
-const coinInfo = document.getElementById('coin-info');
-const cardArea = document.getElementById('card-area');
-const actionArea = document.getElementById('action-area');
-
-let currentPlayerIdx = 0; // 0: 彭青, 1: 吴璨
-
-function renderGameMain() {
-  // 显示当前玩家信息
-  const player = players[currentPlayerIdx];
-  playerInfo.textContent = `当前玩家：${player.name}（${player.role}）`;
-  document.getElementById('coin-count').textContent = player.coins;
-
-  // 展示手牌
-  cardArea.innerHTML = '';
-  player.hand.forEach((card, idx) => {
-    const cardDiv = document.createElement('div');
-    cardDiv.className = 'district-card';
-    cardDiv.innerHTML = `
-      <img src="${card.img}" alt="${card.name}">
-      <div class="district-info">
-        <span style="color:#ffe6b3;font-weight:bold;">${card.score}分</span>
-        <span style="margin-left:6px;">${card.name}</span>
-      </div>
-    `;
-    cardArea.appendChild(cardDiv);
-  });
-
-  // 操作区
-  actionArea.innerHTML = '';
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'main-btn';
-  nextBtn.textContent = '下一步（占位）';
-  nextBtn.onclick = () => {
-    // 后续流程可在这里扩展
-    playSound('click');
-    // 切换玩家演示
-    currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
-    renderGameMain();
-  };
-  actionArea.appendChild(nextBtn);
-}
-
-// 进入主游戏区时初始化
+// 进入主游戏区时初始化（重写）
 function enterGameMain() {
   dealInitialCards();
   currentPlayerIdx = 0;
-  renderGameMain();
+  showDealIntro();
 }
 
-// 替换进入主游戏区的逻辑
-const oldToGameBtnHandler = toGameBtn.onclick;
-toGameBtn.onclick = () => {
-  playSound('click');
-  if (currentDraw < roleDrawOrder.length) {
-    renderRoleDraw();
-  } else {
-    showSection('game-section');
-    enterGameMain();
+// 发牌引导语和按钮
+function showDealIntro() {
+  cardArea.innerHTML = '';
+  actionArea.innerHTML = '';
+  playerInfo.textContent = '';
+  document.getElementById('coin-count').textContent = '4';
+
+  // 引导语
+  const intro = document.createElement('div');
+  intro.className = 'rules-content';
+  intro.innerHTML = `回合开始前，每位玩家会获得4张随机地区卡和4枚金币。`;
+  cardArea.appendChild(intro);
+
+  // “返回查看游戏规则”按钮
+  const backBtn = document.createElement('button');
+  backBtn.className = 'main-btn';
+  backBtn.textContent = '返回查看游戏规则';
+  backBtn.onclick = () => {
+    playSound('click');
+    showSection('rules-section');
+  };
+  actionArea.appendChild(backBtn);
+
+  // “看看 XX 的运气如何”按钮
+  const dealBtn = document.createElement('button');
+  dealBtn.className = 'main-btn';
+  dealBtn.style.marginTop = '18px';
+  dealBtn.textContent = `看看 ${players[currentPlayerIdx].name} 的运气如何`;
+  dealBtn.onclick = () => {
+    playSound('shuffle');
+    showDealAnimation();
+  };
+  actionArea.appendChild(dealBtn);
+}
+
+
+
+// ========== 主游戏区：发牌动画 ==========
+
+function showDealAnimation() {
+  cardArea.innerHTML = '';
+  actionArea.innerHTML = '';
+  playerInfo.textContent = `当前玩家：${players[currentPlayerIdx].name}（${players[currentPlayerIdx].role}）`;
+  document.getElementById('coin-count').textContent = players[currentPlayerIdx].coins;
+
+  // 卡牌背面
+  const hand = players[currentPlayerIdx].hand;
+  const cardGrid = document.createElement('div');
+  cardGrid.style.display = 'grid';
+  cardGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+  cardGrid.style.gridGap = '18px';
+  cardGrid.style.justifyItems = 'center';
+  cardGrid.style.margin = '24px 0 12px 0';
+  cardGrid.style.width = '100%';
+
+  // 先渲染4张背面
+  for (let i = 0; i < 4; i++) {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'district-card';
+    cardDiv.style.background = `url('assets/others/card_back.jpg') center/cover no-repeat`;
+    cardDiv.style.width = '90px';
+    cardDiv.style.height = '130px';
+    cardDiv.style.position = 'relative';
+    cardGrid.appendChild(cardDiv);
   }
-};
+  cardArea.appendChild(cardGrid);
+
+  // 动画依次翻转
+  setTimeout(() => flipCard(0), 400);
+
+  function flipCard(idx) {
+    if (idx >= 4) {
+      setTimeout(showCardNames, 400);
+      return;
+    }
+    const cardDiv = cardGrid.children[idx];
+    cardDiv.style.transition = 'transform 0.4s';
+    cardDiv.style.transform = 'rotateY(90deg)';
+    setTimeout(() => {
+      cardDiv.style.background = '';
+      cardDiv.innerHTML = `
+        <img src="${hand[idx].img}" alt="${districtNameMap[hand[idx].name] || hand[idx].name}" style="width:100%;height:80px;object-fit:cover;border-radius:8px 8px 0 0;">
+        <div class="district-info" style="font-size:1.1rem;font-weight:bold;color:#ffe6b3;">${districtNameMap[hand[idx].name] || hand[idx].name}</div>
+      `;
+      cardDiv.style.transform = 'rotateY(0deg)';
+      playSound('shuffle');
+      setTimeout(() => flipCard(idx + 1), 350);
+    }, 200);
+  }
+
+  // 显示卡牌中文名
+  function showCardNames() {
+    // “继续获得4枚金币”按钮
+    actionArea.innerHTML = '';
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'main-btn';
+    nextBtn.textContent = '继续获得4枚金币';
+    nextBtn.onclick = () => {
+      playSound('click');
+      showCoinAnimation();
+    };
+    actionArea.appendChild(nextBtn);
+
+    // “返回查看游戏规则”按钮
+    const backBtn = document.createElement('button');
+    backBtn.className = 'main-btn';
+    backBtn.style.marginTop = '12px';
+    backBtn.textContent = '返回查看游戏规则';
+    backBtn.onclick = () => {
+      playSound('click');
+      showSection('rules-section');
+    };
+    actionArea.appendChild(backBtn);
+  }
+}
+
+// ========== 主游戏区：金币动画 ==========
+
+function showCoinAnimation() {
+  cardArea.innerHTML = '';
+  actionArea.innerHTML = '';
+  playerInfo.textContent = `当前玩家：${players[currentPlayerIdx].name}（${players[currentPlayerIdx].role}）`;
+
+  // 动画区域
+  const coinArea = document.createElement('div');
+  coinArea.style.display = 'flex';
+  coinArea.style.justifyContent = 'center';
+  coinArea.style.alignItems = 'center';
+  coinArea.style.margin = '40px 0 24px 0';
+  coinArea.style.height = '100px';
+  cardArea.appendChild(coinArea);
+
+  // 动画依次出现金币
+  let coinsShown = 0;
+  function showNextCoin() {
+    if (coinsShown < 4) {
+      const coinImg = document.createElement('img');
+      coinImg.src = 'assets/others/coin.jpg';
+      coinImg.style.width = '48px';
+      coinImg.style.margin = '0 8px';
+      coinImg.style.opacity = '0';
+      coinArea.appendChild(coinImg);
+      setTimeout(() => {
+        coinImg.style.transition = 'opacity 0.3s';
+        coinImg.style.opacity = '1';
+        playSound('coin');
+      }, 50);
+      coinsShown++;
+      setTimeout(showNextCoin, 350);
+    } else {
+      setTimeout(mergeCoins, 600);
+    }
+  }
+  showNextCoin();
+
+  // 合并金币为x4
+  function mergeCoins() {
+    coinArea.innerHTML = '';
+    const coinImg = document.createElement('img');
+    coinImg.src = 'assets/others/coin.jpg';
+    coinImg.style.width = '48px';
+    coinImg.style.marginRight = '8px';
+    coinArea.appendChild(coinImg);
+
+    const x4 = document.createElement('span');
+    x4.textContent = '×4';
+    x4.style.fontSize = '2rem';
+    x4.style.color = '#ffe6b3';
+    x4.style.fontWeight = 'bold';
+    coinArea.appendChild(x4);
+
+    playSound('coin');
+
+    // 更新金币数
+    document.getElementById('coin-count').textContent = players[currentPlayerIdx].coins;
+
+      // “继续”按钮
+    actionArea.innerHTML = '';
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'main-btn';
+    if (currentPlayerIdx === 0) {
+      nextBtn.textContent = '轮到 吴璨 发牌';
+    } else {
+      nextBtn.textContent = '进入主游戏操作区';
+    }
+    nextBtn.onclick = () => {
+      playSound('click');
+      if (currentPlayerIdx === 0) {
+        currentPlayerIdx = 1;
+        showDealIntro();
+      } else {
+        renderGameMain();
+      }
+    };
+    actionArea.appendChild(nextBtn);
+
+    // “返回查看游戏规则”按钮
+    const backBtn = document.createElement('button');
+    backBtn.className = 'main-btn';
+    backBtn.style.marginTop = '12px';
+    backBtn.textContent = '返回查看游戏规则';
+    backBtn.onclick = () => {
+      playSound('click');
+      showSection('rules-section');
+    };
+    actionArea.appendChild(backBtn);
+  }
+}
