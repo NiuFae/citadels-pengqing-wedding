@@ -1973,4 +1973,220 @@ function startWarlordTurn() {
   // showWarlordPanel();
 }
 
+function startWarlordTurn() {
+  showWarlordPanel();
+}
+
+function showWarlordPanel() {
+  playSound('magic');
+  cardArea.innerHTML = '';
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 军阀虚拟玩家对象
+  const warlord = {
+    name: "焦傲然",
+    role: "军阀",
+    roleKey: "warlord",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4), // 随机4张
+    built: []
+  };
+
+  // 军阀信息弹窗
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/warlord.jpg" alt="军阀" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">焦傲然（军阀）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('warlord')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">×${warlord.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="warlord-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${warlord.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <button class="main-btn" id="warlord-skill-btn" style="margin-top:10px;">军阀决定是否发动攻打技能</button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 禁止查看军阀手牌
+  setTimeout(() => {
+    const handArea = document.getElementById('warlord-hand-area');
+    if (handArea) {
+      handArea.onclick = () => {
+        const tip = document.createElement('div');
+        tip.style.position = 'fixed';
+        tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+        tip.style.background = 'rgba(0,0,0,0.85)';
+        tip.style.zIndex = '6000';
+        tip.style.display = 'flex';
+        tip.style.alignItems = 'center';
+        tip.style.justifyContent = 'center';
+        tip.innerHTML = `
+          <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+            <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+            <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+          </div>
+        `;
+        document.body.appendChild(tip);
+        playSound('notification');
+      };
+    }
+  }, 0);
+
+  // 技能按钮
+  document.getElementById('warlord-skill-btn').onclick = () => {
+    playSound('notification');
+    // 军阀决定暂不发动攻击技能
+    popup.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+        <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+          军阀决定，本轮暂不启动对他人建筑的攻打与破坏。<br>当第一回合临近结束时，再发动该技能。
+        </div>
+        <button class="main-btn" id="warlord-bless-btn">军阀：“艺术，就是爆炸！”</button>
+      </div>
+    `;
+    document.getElementById('warlord-bless-btn').onclick = () => {
+      showWarlordBlessingVideo(() => {
+        // 祝福视频关闭后，军阀拿金币
+        popup.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+            <button class="main-btn" id="warlord-get-coin-btn">军阀选择拿取4枚金币</button>
+          </div>
+        `;
+        document.getElementById('warlord-get-coin-btn').onclick = () => {
+          playSound('coin');
+          warlord.coins += 4;
+          popup.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+              <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">军阀获得4枚金币，现在有${warlord.coins}枚金币</div>
+              <button class="main-btn" id="warlord-build-btn">军阀开始建造地区</button>
+            </div>
+          `;
+          document.getElementById('warlord-build-btn').onclick = () => {
+            // 自动建造1~2个地区，总花费不超过当前金币
+            let total = 0, built = [];
+            for (let i = 0; i < warlord.hand.length; i++) {
+              if (built.length < 2 && total + warlord.hand[i].score <= warlord.coins) {
+                built.push(warlord.hand[i]);
+                total += warlord.hand[i].score;
+              }
+            }
+            warlord.built = built;
+            warlord.coins -= total;
+            popup.innerHTML = `
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+                  军阀建造了${built.length}个地区，总花费${total}金币，剩余${warlord.coins}金币
+                </div>
+                <div style="display:flex;gap:10px;margin-bottom:12px;">
+                  ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+                    <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+                    <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+                  </div>`).join('')}
+                </div>
+                <button class="main-btn" id="warlord-bonus-btn">结算军事奖励</button>
+              </div>
+            `;
+            playSound('construct');
+            document.getElementById('warlord-bonus-btn').onclick = () => {
+              // 结算红色奖励
+              const redCount = warlord.built.filter(card => card.color === 'red').length;
+              let bonus = redCount;
+              warlord.coins += bonus;
+              popup.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                  <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+                    军阀已建造${redCount}个军事地区，获得${bonus}枚金币奖励
+                  </div>
+                  <button class="main-btn" id="warlord-end-btn">军阀行动结束</button>
+                </div>
+              `;
+              playSound('coin');
+              document.getElementById('warlord-end-btn').onclick = () => {
+                popup.remove();
+                // 进入下一个角色流程
+                startQueenTurn();
+              };
+            };
+          };
+        };
+      });
+    };
+  };
+}
+
+function showWarlordBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="warlord-bless-video" src="assets/videos/warlord.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="warlord-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="warlord-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('warlord-bless-video');
+  document.getElementById('warlord-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('warlord-bless-close').onclick = () => {
+    popup.remove();
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="warlord-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="warlord-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('warlord-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('warlord-bless-close2').onclick = () => {
+      popup.remove();
+      if (onClose) onClose();
+    };
+  };
+}
+
+function startQueenTurn() {
+  // TODO: 这里进入皇后流程
+  // showQueenPanel();
+}
+
+
+
+
 
