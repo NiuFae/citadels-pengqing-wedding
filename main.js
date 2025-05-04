@@ -2186,6 +2186,176 @@ function startQueenTurn() {
   // showQueenPanel();
 }
 
+function startQueenTurn() {
+  showQueenPanel();
+}
+
+function showQueenPanel() {
+  playSound('magic');
+  cardArea.innerHTML = '';
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 皇后虚拟玩家对象
+  const queen = {
+    name: "吴璨",
+    role: "皇后",
+    roleKey: "queen",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4), // 随机4张
+    built: []
+  };
+
+  // 皇后信息弹窗
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/queen.jpg" alt="皇后" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">吴璨（皇后）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('queen')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">×${queen.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="queen-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${queen.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <button class="main-btn" id="queen-passive-btn" style="margin-top:10px;">
+        由于皇后在物理意义上坐在国王旁边，触发皇后被动技能，本轮额外获得3枚金币
+      </button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 禁止查看皇后手牌
+  setTimeout(() => {
+    const handArea = document.getElementById('queen-hand-area');
+    if (handArea) {
+      handArea.onclick = () => {
+        const tip = document.createElement('div');
+        tip.style.position = 'fixed';
+        tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+        tip.style.background = 'rgba(0,0,0,0.85)';
+        tip.style.zIndex = '6000';
+        tip.style.display = 'flex';
+        tip.style.alignItems = 'center';
+        tip.style.justifyContent = 'center';
+        tip.innerHTML = `
+          <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+            <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+            <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+          </div>
+        `;
+        document.body.appendChild(tip);
+        playSound('notification');
+      };
+    }
+  }, 0);
+
+  // 皇后被动技能按钮
+  document.getElementById('queen-passive-btn').onclick = () => {
+    playSound('coin');
+    queen.coins += 3;
+    popup.querySelector('span[style*="color:#ffe6b3;"]').textContent = `×${queen.coins}`;
+    // 下一步：拿4金币
+    popup.innerHTML = `
+      <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+        <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+          <img class="player-role-img" src="assets/roles/queen.jpg" alt="皇后" style="height:60px;width:60px;">
+          <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">吴璨（皇后）</span>
+          <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('queen')">？</button>
+        </div>
+        <div style="margin-bottom:6px;">
+          <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">×${queen.coins}</span>
+        </div>
+        <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="queen-hand-area2">
+          <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+          <span style="color:#ffe6b3;">×${queen.hand.length}</span>
+        </div>
+        <div style="margin-bottom:10px;">
+          <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+        </div>
+        <button class="main-btn" id="queen-get-coin-btn" style="margin-top:10px;">皇后选择拿取4枚金币</button>
+      </div>
+    `;
+    setTimeout(() => {
+      const handArea2 = document.getElementById('queen-hand-area2');
+      if (handArea2) {
+        handArea2.onclick = () => {
+          const tip = document.createElement('div');
+          tip.style.position = 'fixed';
+          tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+          tip.style.background = 'rgba(0,0,0,0.85)';
+          tip.style.zIndex = '6000';
+          tip.style.display = 'flex';
+          tip.style.alignItems = 'center';
+          tip.style.justifyContent = 'center';
+          tip.innerHTML = `
+            <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+              <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+              <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+            </div>
+          `;
+          document.body.appendChild(tip);
+          playSound('notification');
+        };
+      }
+    }, 0);
+    document.getElementById('queen-get-coin-btn').onclick = () => {
+      playSound('coin');
+      queen.coins += 4;
+      popup.querySelector('span[style*="color:#ffe6b3;"]').textContent = `×${queen.coins}`;
+      // 自动建造1~2个地区，总花费不超过11金币
+      let total = 0, built = [];
+      for (let i = 0; i < queen.hand.length; i++) {
+        if (built.length < 2 && total + queen.hand[i].score <= queen.coins) {
+          built.push(queen.hand[i]);
+          total += queen.hand[i].score;
+        }
+      }
+      queen.built = built;
+      queen.coins -= total;
+      // 展示建造结果
+      popup.innerHTML = `
+        <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+          <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+            皇后建造了${built.length}个地区，总花费${total}金币，剩余${queen.coins}金币
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;justify-content:center;">
+            ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+              <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+              <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+            </div>`).join('')}
+          </div>
+          <button class="main-btn" id="queen-end-btn">皇后行动结束</button>
+        </div>
+      `;
+      playSound('construct');
+      document.getElementById('queen-end-btn').onclick = () => {
+        popup.remove();
+        // 进入下一个角色流程
+        startAlchemistTurn();
+      };
+    };
+  };
+}
+
 
 
 
