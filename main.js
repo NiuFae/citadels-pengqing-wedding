@@ -69,7 +69,7 @@ function renderPlayerPanel(currentIdx = 0) {
     // 金币
     const coins = document.createElement('div');
     coins.className = 'player-coins';
-    coins.innerHTML = `<img src="assets/others/coin.jpg" alt="金币"><span>${p.coins}</span>`;
+    coins.innerHTML = `<img src="assets/others/coin.jpg" alt="金币"><span style="margin-left:2px;">×${p.coins}</span>`;
     block.appendChild(coins);
     // 手牌
     const hand = document.createElement('div');
