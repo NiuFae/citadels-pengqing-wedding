@@ -1199,7 +1199,7 @@ function showMagicianPanel() {
               document.getElementById('magician-end-btn').onclick = () => {
                 popup.remove();
                 // 进入下一个角色流程
-                // startKingTurn();
+                startKingTurn();
               };
             };
           };
@@ -1254,3 +1254,176 @@ function showMagicianBlessingVideo(onClose) {
     };
   };
 }
+
+function startKingTurn() {
+  showKingPanel();
+}
+
+function showKingPanel() {
+  const king = players[0];
+  // 1. 皇冠飞入动画
+  animateCrownToKing(() => {
+    // 2. 拿金币
+    showKingGetCoins(king);
+  });
+}
+
+function animateCrownToKing(callback) {
+  // 动画皇冠飞到国王头像旁
+  const kingPanel = document.querySelectorAll('.player-block')[0];
+  const header = kingPanel ? kingPanel.querySelector('.player-header') : null;
+  if (!header) { if (callback) callback(); return; }
+
+  // 创建皇冠图片
+  const crown = document.createElement('img');
+  crown.src = 'assets/others/crown.jpg';
+  crown.style.position = 'fixed';
+  crown.style.left = '50vw';
+  crown.style.top = '10vh';
+  crown.style.width = '48px';
+  crown.style.height = '48px';
+  crown.style.zIndex = '9999';
+  crown.style.transition = 'all 0.8s cubic-bezier(.4,2,.6,1)';
+  document.body.appendChild(crown);
+
+  // 计算目标位置
+  const rect = header.getBoundingClientRect();
+  const targetLeft = rect.left + 10;
+  const targetTop = rect.top - 30;
+
+  setTimeout(() => {
+    crown.style.left = `${targetLeft}px`;
+    crown.style.top = `${targetTop}px`;
+    crown.style.transform = 'scale(1.1) rotate(-10deg)';
+  }, 80);
+
+  setTimeout(() => {
+    // 动画结束后，把皇冠插入到国王头像旁
+    document.body.removeChild(crown);
+    if (!header.querySelector('.crown-img')) {
+      const crownImg = document.createElement('img');
+      crownImg.src = 'assets/others/crown.jpg';
+      crownImg.className = 'crown-img';
+      crownImg.style.width = '32px';
+      crownImg.style.height = '32px';
+      crownImg.style.marginLeft = '2px';
+      crownImg.style.verticalAlign = 'middle';
+      header.appendChild(crownImg);
+    }
+    playSound('success');
+    if (callback) callback();
+  }, 1000);
+}
+
+function showKingGetCoins(king) {
+  // 弹窗提示
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="font-size:1.2rem;color:#ffe6b3;margin-bottom:18px;">国王选择拿取4枚金币</div>
+      <button class="main-btn" id="king-get-coin-btn">拿金币</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  document.getElementById('king-get-coin-btn').onclick = () => {
+    playSound('coin');
+    king.coins += 4;
+    renderPlayerPanel(0);
+    popup.remove();
+    showKingBuild(king);
+  };
+}
+
+function showKingBuild(king) {
+  // 自动建造1~2个地区，总花费不超过当前金币
+  let total = 0, built = [];
+  for (let i = 0; i < king.hand.length; i++) {
+    if (built.length < 2 && total + king.hand[i].score <= king.coins) {
+      built.push(king.hand[i]);
+      total += king.hand[i].score;
+    }
+  }
+  king.built = built;
+  king.coins -= total;
+
+  // 弹窗提示建造结果
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+        国王建造了${built.length}个地区，总花费${total}金币，剩余${king.coins}金币
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;justify-content:center;">
+        ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+          <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+          <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+        </div>`).join('')}
+      </div>
+      <button class="main-btn" id="king-bonus-btn">结算贵族奖励</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('construct');
+
+  document.getElementById('king-bonus-btn').onclick = () => {
+    popup.remove();
+    showKingNobleBonus(king);
+  };
+}
+
+function showKingNobleBonus(king) {
+  // 统计黄色（贵族）地区数量
+  const nobleCount = king.built.filter(card => card.color === 'yellow').length;
+  let bonus = nobleCount;
+  king.coins += bonus;
+
+  // 弹窗提示
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+        国王已建造${nobleCount}个贵族地区，获得${bonus}枚金币奖励
+      </div>
+      <button class="main-btn" id="king-end-btn">国王回合结束</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('coin');
+
+  document.getElementById('king-end-btn').onclick = () => {
+    popup.remove();
+    renderPlayerPanel(0);
+    // 进入下一个角色流程
+    startBishopTurn();
+  };
+}
+
+function startBishopTurn() {
+  // TODO: 这里进入主教流程
+  // showBishopPanel();
+}
+
+
+
