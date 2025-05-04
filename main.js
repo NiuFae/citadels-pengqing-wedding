@@ -608,14 +608,164 @@ function showCoinAnimation() {
       if (currentPlayerIdx === 0) {
         currentPlayerIdx = 1;
         showDealAnimation();
-        renderPlayerPanel(currentPlayerIdx); // <--- 新增
+        renderPlayerPanel(currentPlayerIdx);
       } else {
         coinInfo.style.display = '';
         playerInfo.style.display = '';
-        renderPlayerPanel(currentPlayerIdx); // <--- 新增
-        // 你可以在这里继续开发主操作区
+        renderPlayerPanel(currentPlayerIdx);
+        startFirstRound(); // <--- 新增，进入第一回合
       }
     };
     actionArea.appendChild(nextBtn);
   }
 }
+
+function showFirstRoundRules(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.zIndex = '3000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:left;">
+      <div style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;margin-bottom:10px;">第一回合规则与胜利条件</div>
+      <div style="color:#ffe6b3;font-size:1.05rem;line-height:1.7;">
+        <b>在一个回合当中，玩家可以作出以下事情：</b><br>
+        <ul style="margin:8px 0 8px 18px;padding:0;">
+          <li>执行一次行动：首先，玩家必须在桌子上的金币堆中拿取4枚金币，或者从牌堆中抽取2张新的地区卡，选择一张放入手上，然后将另外一张弃掉。</li>
+          <li>建设：接着，玩家可以将一张或两张地区卡放在自己前面，并且要支付所需的建筑费用（将支付的金币交回银行）。你也可以选择不建设。你的城市里也不能有两个相同的地区。</li>
+          <li>角色技能：你可以在回合内任意时候使用一次本回合选取的角色技能，也可以不使用。</li>
+        </ul>
+        <b>胜利条件：</b><br>
+        一局定胜负。一个回合后，游戏结束，每个玩家按自己已经建立了的地区和手中剩余的金币相加计算总得分，每个地区的分数等于它的建筑费用，拿到最多分数的玩家就是胜利者。第一名将获得国王的王冠。
+      </div>
+      <button class="main-btn" style="margin:18px auto 0 auto;display:block;" onclick="this.parentNode.parentNode.remove();window._onFirstRoundRulesClose && window._onFirstRoundRulesClose();">我已知晓，开始第一回合</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  window._onFirstRoundRulesClose = onClose;
+  playSound('cover'); // 规则音效
+}
+
+function startFirstRound() {
+  showFirstRoundRules(() => {
+    startAssassinTurn();
+  });
+}
+
+function startAssassinTurn() {
+  // 1. 弹窗显示刺客信息面板
+  showAssassinPanel();
+}
+
+function showAssassinPanel() {
+  // 假设刺客是虚拟玩家
+  const assassin = {
+    name: "GPT老师",
+    role: "刺客",
+    roleKey: "assassin",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4), // 随机4张
+    built: []
+  };
+
+  // 刺客信息弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+
+  // 刺客面板内容
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/assassin.jpg" alt="刺客" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">${assassin.name}（刺客）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('assassin')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">${assassin.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;"> <span style="color:#ffe6b3;">×${assassin.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <button class="main-btn" id="assassin-skill-btn" style="margin-top:10px;">刺客选择发动技能</button>
+    </div>
+  `;
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 刺客技能按钮
+  document.getElementById('assassin-skill-btn').onclick = () => {
+    playSound('magic');
+    // 全屏渐变黑色+刺客卡渐显
+    popup.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">刺客发动技能</div>
+        <img src="assets/roles/assassin.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
+        <button class="main-btn" id="assassin-kill-btn">此刻选择刺杀【商人】</button>
+      </div>
+    `;
+    document.getElementById('assassin-kill-btn').onclick = () => {
+      playSound('magic');
+      popup.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+          <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">刺客技能使用完毕</div>
+          <button class="main-btn" id="assassin-get-coin-btn">刺客选择拿取4枚金币</button>
+        </div>
+      `;
+      document.getElementById('assassin-get-coin-btn').onclick = () => {
+        playSound('coin');
+        // 金币动画（可简化为数字+音效）
+        assassin.coins += 4;
+        popup.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+            <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">刺客获得4枚金币，现在有${assassin.coins}枚金币</div>
+            <button class="main-btn" id="assassin-build-btn">刺客开始建造地区</button>
+          </div>
+        `;
+        document.getElementById('assassin-build-btn').onclick = () => {
+          // 随机建造1~2个地区，总花费≤8
+          let total = 0, built = [];
+          for (let i = 0; i < assassin.hand.length; i++) {
+            if (built.length < 2 && total + assassin.hand[i].score <= 8) {
+              built.push(assassin.hand[i]);
+              total += assassin.hand[i].score;
+            }
+          }
+          assassin.built = built;
+          popup.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+              <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">刺客建造了${built.length}个地区，总花费${total}金币</div>
+              <div style="display:flex;gap:10px;margin-bottom:12px;">
+                ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;">
+                  <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+                  <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+                </div>`).join('')}
+              </div>
+              <button class="main-btn" id="assassin-end-btn">刺客行动结束</button>
+            </div>
+          `;
+          playSound('construct');
+          document.getElementById('assassin-end-btn').onclick = () => {
+            popup.remove();
+            // 这里可以进入下一个角色流程
+            // startThiefTurn();
+          };
+        };
+      };
+    };
+  };
+}
+
+
