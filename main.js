@@ -409,13 +409,12 @@ function generateDistrictDeck() {
 function dealInitialCards() {
   const deck = generateDistrictDeck();
   for (let i = 0; i < players.length; i++) {
-    players[i].hand = [];
-    for (let j = 0; j < 4; j++) {
-      players[i].hand.push(deck.pop());
-    }
-    players[i].coins = 4;
+    players[i].hand = []; // 先不发牌
+    players[i].coins = 0; // 先不发金币
     players[i].built = [];
   }
+  // 你可以把deck存起来，后面发牌时用
+  window._districtDeck = deck;
 }
 
 const playerInfo = document.getElementById('player-info');
@@ -471,7 +470,12 @@ function showDealAnimation() {
   coinInfo.style.display = 'none';
   playerInfo.style.display = 'none';
 
-  const hand = players[currentPlayerIdx].hand;
+  const hand = [];
+  for (let j = 0; j < 4; j++) {
+    hand.push(window._districtDeck.pop());
+  }
+  players[currentPlayerIdx].hand = hand;
+
   const cardGrid = document.createElement('div');
   cardGrid.style.display = 'grid';
   cardGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
@@ -593,6 +597,7 @@ function showCoinAnimation() {
     coinArea.appendChild(x4);
 
     playSound('coin');
+    players[currentPlayerIdx].coins = 4;
     document.getElementById('coin-count').textContent = players[currentPlayerIdx].coins;
 
     actionArea.innerHTML = '';
@@ -663,6 +668,7 @@ function startAssassinTurn() {
 
 
 function showAssassinPanel() {
+  cardArea.innerHTML = '';
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -807,6 +813,7 @@ function startThiefTurn() {
 
 function showThiefPanel() {
   playSound('magic');
+  cardArea.innerHTML = '';
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1042,6 +1049,7 @@ function startMagicianTurn() {
 
 function showMagicianPanel() {
   playSound('magic');
+  cardArea.innerHTML = '';
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1271,6 +1279,7 @@ function startKingTurn() {
 }
 
 function showKingPanel() {
+  cardArea.innerHTML = '';
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1445,6 +1454,7 @@ function startBishopTurn() {
 
 function showBishopPanel() {
   playSound('magic');
+  cardArea.innerHTML = '';
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1524,66 +1534,65 @@ function showBishopPanel() {
     bishop.coins += 4;
     popup.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">主教获得4枚金币，现在有${bishop.coins}枚金币</div>
-        <button class="main-btn" id="bishop-build-btn">主教开始建造地区</button>
+        <button class="main-btn" id="bishop-bless-btn">主教：“以主教之名——”</button>
       </div>
     `;
-    document.getElementById('bishop-build-btn').onclick = () => {
-      // 自动建造1~2个地区，总花费不超过当前金币
-      let total = 0, built = [];
-      for (let i = 0; i < bishop.hand.length; i++) {
-        if (built.length < 2 && total + bishop.hand[i].score <= bishop.coins) {
-          built.push(bishop.hand[i]);
-          total += bishop.hand[i].score;
-        }
-      }
-      bishop.built = built;
-      bishop.coins -= total;
-      popup.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-          <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
-            主教建造了${built.length}个地区，总花费${total}金币，剩余${bishop.coins}金币
-          </div>
-          <div style="display:flex;gap:10px;margin-bottom:12px;">
-            ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
-              <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
-              <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
-            </div>`).join('')}
-          </div>
-          <button class="main-btn" id="bishop-bonus-btn">结算宗教奖励</button>
-        </div>
-      `;
-      playSound('construct');
-      document.getElementById('bishop-bonus-btn').onclick = () => {
-        // 结算蓝色奖励
-        const blueCount = bishop.built.filter(card => card.color === 'blue').length;
-        let bonus = blueCount;
-        bishop.coins += bonus;
+    document.getElementById('bishop-bless-btn').onclick = () => {
+      showBishopBlessingVideo(() => {
+        // 祝福视频关闭后，主教建造
         popup.innerHTML = `
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-            <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
-              主教已建造${blueCount}个宗教地区，获得${bonus}枚金币奖励
-            </div>
-            <button class="main-btn" id="bishop-bless-btn">主教：“以主教之名————”</button>
+            <button class="main-btn" id="bishop-build-btn">主教开始建造地区</button>
           </div>
         `;
-        playSound('coin');
-        document.getElementById('bishop-bless-btn').onclick = () => {
-          showBishopBlessingVideo(() => {
-            // 祝福视频关闭后，主教行动结束
+        document.getElementById('bishop-build-btn').onclick = () => {
+          // 自动建造1~2个地区，总花费不超过当前金币
+          let total = 0, built = [];
+          for (let i = 0; i < bishop.hand.length; i++) {
+            if (built.length < 2 && total + bishop.hand[i].score <= bishop.coins) {
+              built.push(bishop.hand[i]);
+              total += bishop.hand[i].score;
+            }
+          }
+          bishop.built = built;
+          bishop.coins -= total;
+          popup.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+              <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+                主教建造了${built.length}个地区，总花费${total}金币，剩余${bishop.coins}金币
+              </div>
+              <div style="display:flex;gap:10px;margin-bottom:12px;">
+                ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+                  <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+                  <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+                </div>`).join('')}
+              </div>
+              <button class="main-btn" id="bishop-bonus-btn">结算宗教奖励</button>
+            </div>
+          `;
+          playSound('construct');
+          document.getElementById('bishop-bonus-btn').onclick = () => {
+            // 结算蓝色奖励
+            const blueCount = bishop.built.filter(card => card.color === 'blue').length;
+            let bonus = blueCount;
+            bishop.coins += bonus;
             popup.innerHTML = `
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+                  主教已建造${blueCount}个宗教地区，获得${bonus}枚金币奖励
+                </div>
                 <button class="main-btn" id="bishop-end-btn">主教行动结束</button>
               </div>
             `;
+            playSound('coin');
             document.getElementById('bishop-end-btn').onclick = () => {
               popup.remove();
               // 进入下一个角色流程
               startMerchantTurn();
             };
-          });
+          };
         };
-      };
+      });
     };
   };
 }
