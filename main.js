@@ -661,6 +661,7 @@ function startAssassinTurn() {
   showAssassinPanel();
 }
 
+
 function showAssassinPanel() {
   // 假设刺客是虚拟玩家
   const assassin = {
@@ -794,4 +795,232 @@ function showAssassinPanel() {
   };
 }
 
+function startThiefTurn() {
+  showThiefPanel();
+}
 
+function showThiefPanel() {
+  // 盗贼玩家对象
+  const thief = {
+    name: "牛斐",
+    role: "盗贼",
+    roleKey: "thief",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4), // 随机4张
+    built: []
+  };
+
+  // 盗贼面板内容
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/thief.jpg" alt="盗贼" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">牛斐（盗贼）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('thief')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="margin-left:2px;">×${thief.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="thief-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${thief.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <button class="main-btn" id="thief-skill-btn" style="margin-top:10px;">盗贼选择发动技能</button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 禁止查看盗贼手牌
+  setTimeout(() => {
+    const handArea = document.getElementById('thief-hand-area');
+    if (handArea) {
+      handArea.onclick = () => {
+        const tip = document.createElement('div');
+        tip.style.position = 'fixed';
+        tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+        tip.style.background = 'rgba(0,0,0,0.85)';
+        tip.style.zIndex = '6000';
+        tip.style.display = 'flex';
+        tip.style.alignItems = 'center';
+        tip.style.justifyContent = 'center';
+        tip.innerHTML = `
+          <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+            <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+            <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+          </div>
+        `;
+        document.body.appendChild(tip);
+        playSound('notification');
+      };
+    }
+  }, 0);
+
+  // 技能按钮
+  document.getElementById('thief-skill-btn').onclick = () => {
+    playSound('magic');
+    // 技能发动界面
+    popup.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼选择盗取【国王】的所有金币</div>
+        <img src="assets/roles/thief.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
+        <button class="main-btn" id="thief-steal-btn">确定盗取</button>
+      </div>
+    `;
+    document.getElementById('thief-steal-btn').onclick = () => {
+      playSound('magic');
+      // 动画：国王金币高亮+金币飞向盗贼
+      highlightAndTransferCoinsFromKingToThief(thief, () => {
+        // 技能发动完毕
+        popup.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+            <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼已成功盗取国王的金币</div>
+            <button class="main-btn" id="thief-bless-btn">盗贼说：来都来了</button>
+          </div>
+        `;
+        document.getElementById('thief-bless-btn').onclick = () => {
+          showThiefBlessingVideo(() => {
+            // 祝福视频关闭后，进入拿金币
+            popup.innerHTML = `
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼可以选择拿取4枚金币</div>
+                <button class="main-btn" id="thief-get-coin-btn">盗贼选择拿取4枚金币</button>
+              </div>
+            `;
+            document.getElementById('thief-get-coin-btn').onclick = () => {
+              playSound('coin');
+              thief.coins += 4;
+              popup.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                  <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼获得4枚金币，现在有${thief.coins}枚金币</div>
+                  <button class="main-btn" id="thief-build-btn">盗贼开始建造地区</button>
+                </div>
+              `;
+              document.getElementById('thief-build-btn').onclick = () => {
+                // 自动建造1~2个地区，总花费不超过盗贼当前金币
+                let total = 0, built = [];
+                for (let i = 0; i < thief.hand.length; i++) {
+                  if (built.length < 2 && total + thief.hand[i].score <= thief.coins) {
+                    built.push(thief.hand[i]);
+                    total += thief.hand[i].score;
+                  }
+                }
+                thief.built = built;
+                thief.coins -= total;
+                // 建造动画
+                popup.innerHTML = `
+                  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                    <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼建造了${built.length}个地区，总花费${total}金币</div>
+                    <div style="display:flex;gap:10px;margin-bottom:12px;">
+                      ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+                        <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+                        <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+                      </div>`).join('')}
+                    </div>
+                    <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:10px;">剩余金币：${thief.coins}</div>
+                    <button class="main-btn" id="thief-end-btn">盗贼行动结束</button>
+                  </div>
+                `;
+                playSound('construct');
+                document.getElementById('thief-end-btn').onclick = () => {
+                  popup.remove();
+                  // 进入下一个角色流程
+                  // startMagicianTurn();
+                };
+              };
+            };
+          });
+        };
+      });
+    };
+  };
+}
+
+function showThiefBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="thief-bless-video" src="assets/videos/thief.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="thief-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="thief-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('thief-bless-video');
+  document.getElementById('thief-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('thief-bless-close').onclick = () => {
+    popup.remove();
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="thief-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="thief-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('thief-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('thief-bless-close2').onclick = () => {
+      popup.remove();
+      if (onClose) onClose();
+    };
+  };
+}
+
+function highlightAndTransferCoinsFromKingToThief(thief, callback) {
+  // 假设国王是 players[0]
+  const king = players[0];
+  const kingCoins = king.coins;
+  if (kingCoins === 0) {
+    if (callback) setTimeout(callback, 800);
+    return;
+  }
+  // 高亮国王金币
+  const kingPanel = document.querySelectorAll('.player-block')[0];
+  const kingCoinDiv = kingPanel ? kingPanel.querySelector('.player-coins') : null;
+  if (kingCoinDiv) {
+    kingCoinDiv.style.transition = 'box-shadow 0.3s, border 0.3s';
+    kingCoinDiv.style.boxShadow = '0 0 12px 4px #ffe6b3';
+    kingCoinDiv.style.border = '2px solid #ffe6b3';
+  }
+  // 动画金币飞向盗贼（这里只做简单延时模拟）
+  setTimeout(() => {
+    if (kingCoinDiv) {
+      kingCoinDiv.style.boxShadow = '';
+      kingCoinDiv.style.border = '';
+    }
+    // 更新金币数
+    king.coins = 0;
+    thief.coins += kingCoins;
+    renderPlayerPanel(currentPlayerIdx); // 刷新面板
+    if (callback) setTimeout(callback, 600);
+  }, 1200);
+}
