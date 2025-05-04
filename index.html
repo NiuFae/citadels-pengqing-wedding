@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>富饶之城·彭青吴璨婚礼特别版</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 封面区 -->
+  <div id="cover-section" class="section">
+    <img src="assets/others/citadels_cover.jpg" alt="富饶之城封面" class="cover-img">
+    <h1 class="cover-title">欢迎来到富饶之城</h1>
+    <button id="start-btn" class="main-btn">点击进入</button>
+    <audio id="cover-audio" src="assets/sounds/cover.wav"></audio>
+  </div>
+
+  <!-- 规则简介区 -->
+  <div id="rules-section" class="section hidden">
+    <h2>游戏规则简介</h2>
+    <div class="rules-content" id="rules-content">
+      <!-- 规则内容由JS动态填充 -->
+    </div>
+    <button id="to-role-btn" class="main-btn">开始抽取角色</button>
+  </div>
+
+  <!-- 抽取角色区 -->
+  <div id="role-section" class="section hidden">
+    <h2>抽取角色</h2>
+    <div id="role-draw-area">
+      <!-- 动态生成三张背面角色卡，点击后翻转显示角色 -->
+    </div>
+    <div id="role-result" class="hidden">
+      <p id="role-result-text"></p>
+      <button id="to-game-btn" class="main-btn">进入游戏</button>
+    </div>
+  </div>
+
+  <!-- 主游戏区 -->
+  <div id="game-section" class="section hidden">
+    <div id="game-header">
+      <span id="player-info"></span>
+      <span id="coin-info"><img src="assets/others/coin.jpg" class="coin-img"> <span id="coin-count">4</span></span>
+    </div>
+    <div id="card-area">
+      <!-- 地区卡展示区 -->
+    </div>
+    <div id="action-area">
+      <!-- 操作按钮、提示等 -->
+    </div>
+    <div id="video-popup" class="hidden">
+      <div class="video-popup-content">
+        <p id="video-popup-text"></p>
+        <video id="bless-video" controls></video>
+        <button id="close-video-btn" class="main-btn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结算区 -->
+  <div id="result-section" class="section hidden">
+    <h2>游戏结算</h2>
+    <div id="result-content">
+      <!-- 分数和排名由JS动态填充 -->
+    </div>
+    <button id="restart-btn" class="main-btn">再玩一次</button>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
