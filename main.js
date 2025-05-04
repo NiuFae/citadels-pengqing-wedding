@@ -692,7 +692,7 @@ function showAssassinPanel() {
         <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('assassin')">？</button>
       </div>
       <div style="margin-bottom:6px;">
-        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">${assassin.coins}</span>
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">x${assassin.coins}</span>
       </div>
       <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="assassin-hand-area">
         <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
@@ -1113,18 +1113,26 @@ function showMagicianPanel() {
     popup.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
         <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">魔法师与国王交换所有手牌</div>
-        <div style="display:flex;gap:30px;margin-bottom:18px;">
-          <div>
-            <div style="color:#ffe6b3;font-weight:bold;margin-bottom:6px;">魔法师原手牌</div>
-            <div style="display:flex;gap:6px;">
-              ${magician.hand.map(card => `<img src="${card.img}" style="width:48px;height:70px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;" title="${districtNameMap[card.name] || card.name}">`).join('')}
-            </div>
+        <div style="width:100vw;max-width:420px;">
+          <div style="color:#ffe6b3;font-weight:bold;margin-bottom:6px;text-align:center;">魔法师原手牌</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;">
+            ${magician.hand.map(card => `
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <img src="${card.img}" style="width:70px;height:100px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+                <span style="color:#ffe6b3;font-size:0.95rem;margin-top:2px;">${districtNameMap[card.name] || card.name}</span>
+                <span style="color:#ffe6b3;font-size:0.9rem;">${card.score}金币</span>
+              </div>
+            `).join('')}
           </div>
-          <div>
-            <div style="color:#ffe6b3;font-weight:bold;margin-bottom:6px;">国王原手牌</div>
-            <div style="display:flex;gap:6px;">
-              ${king.hand.map(card => `<img src="${card.img}" style="width:48px;height:70px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;" title="${districtNameMap[card.name] || card.name}">`).join('')}
-            </div>
+          <div style="color:#ffe6b3;font-weight:bold;margin-bottom:6px;text-align:center;">国王原手牌</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;">
+            ${king.hand.map(card => `
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <img src="${card.img}" style="width:70px;height:100px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+                <span style="color:#ffe6b3;font-size:0.95rem;margin-top:2px;">${districtNameMap[card.name] || card.name}</span>
+                <span style="color:#ffe6b3;font-size:0.9rem;">${card.score}金币</span>
+              </div>
+            `).join('')}
           </div>
         </div>
         <button class="main-btn" id="magician-exchange-btn">确定交换</button>
@@ -1149,7 +1157,6 @@ function showMagicianPanel() {
           // 祝福视频关闭后，进入拿金币
           popup.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-              <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">魔法师可以选择拿取4枚金币</div>
               <button class="main-btn" id="magician-get-coin-btn">魔法师选择拿取4枚金币</button>
             </div>
           `;
