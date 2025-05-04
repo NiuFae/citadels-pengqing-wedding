@@ -663,6 +663,9 @@ function startAssassinTurn() {
 
 
 function showAssassinPanel() {
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
   // 假设刺客是虚拟玩家
   const assassin = {
     name: "GPT老师",
@@ -803,6 +806,10 @@ function startThiefTurn() {
 }
 
 function showThiefPanel() {
+  playSound('magic');
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
   // 盗贼玩家对象
   const thief = {
     name: "牛斐",
@@ -1034,6 +1041,10 @@ function startMagicianTurn() {
 }
 
 function showMagicianPanel() {
+  playSound('magic');
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
   // 魔法师虚拟玩家对象
   const magician = {
     name: "施佳颖",
@@ -1260,6 +1271,9 @@ function startKingTurn() {
 }
 
 function showKingPanel() {
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
   const king = players[0];
   // 1. 皇冠飞入动画
   animateCrownToKing(() => {
