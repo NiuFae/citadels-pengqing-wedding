@@ -1149,7 +1149,7 @@ function showMagicianPanel() {
       popup.innerHTML = `
         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
           <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">魔法师与国王交换了所有手牌</div>
-          <button class="main-btn" id="magician-bless-btn">魔法师：这次交换是双赢吗？</button>
+          <button class="main-btn" id="magician-bless-btn">魔法师：“这次交换是双赢吗？”</button>
         </div>
       `;
       document.getElementById('magician-bless-btn').onclick = () => {
