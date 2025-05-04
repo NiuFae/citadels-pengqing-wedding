@@ -32,7 +32,7 @@ const roleVideos = {
 // 角色中文名辅助
 function roleNameZh(role) {
   const map = {
-    assassin: "刺客", thief: "盗贼", magician: "魔术师", king: "国王", bishop: "主教", merchant: "商人",
+    assassin: "刺客", thief: "盗贼", magician: "魔法师", king: "国王", bishop: "主教", merchant: "商人",
     architect: "建筑师", warlord: "军阀", queen: "皇后", alchemist: "炼金术士", navigator: "航海家",
     artist: "美术家", wizard: "巫师", diplomat: "外交官"
   };
