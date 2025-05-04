@@ -891,7 +891,7 @@ function showThiefPanel() {
         popup.innerHTML = `
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
             <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼已成功盗取国王的金币</div>
-            <button class="main-btn" id="thief-bless-btn">盗贼说：来都来了</button>
+            <button class="main-btn" id="thief-bless-btn">盗贼：“来都来了！”</button>
           </div>
         `;
         document.getElementById('thief-bless-btn').onclick = () => {
