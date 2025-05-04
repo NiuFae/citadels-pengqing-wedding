@@ -303,3 +303,114 @@ h2 {
     font-size: 1.2rem;
   }
 }
+
+/* 玩家信息面板样式 */
+#player-panel {
+  width: 100vw;
+  max-width: 420px;
+  margin: 0 auto 12px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.player-block {
+  background: rgba(40,30,20,0.85);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px #0005;
+  position: relative;
+  transition: box-shadow 0.3s, border 0.3s;
+}
+.player-block.current {
+  border: 2.5px solid #ffe6b3;
+  box-shadow: 0 4px 16px #ffe6b3aa;
+  animation: highlightPlayer 1.2s infinite alternate;
+}
+@keyframes highlightPlayer {
+  from { box-shadow: 0 4px 16px #ffe6b3aa; }
+  to   { box-shadow: 0 0px 8px #ffe6b355; }
+}
+.player-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.player-role-img {
+  height: 40px;
+  width: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-right: 6px;
+  box-shadow: 0 1px 4px #0006;
+}
+.player-block.current .player-role-img {
+  height: 60px;
+  width: 60px;
+}
+.player-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #ffe6b3;
+}
+.skill-btn {
+  background: #ffe6b3;
+  color: #3b2c23;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.skill-btn:hover {
+  background: #fff2cc;
+}
+.player-coins {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.player-coins img {
+  width: 22px;
+  vertical-align: middle;
+}
+.player-hand {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+.player-hand .hand-count {
+  font-size: 1rem;
+  color: #ffe6b3;
+}
+.player-hand .hand-img {
+  width: 28px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px #0006;
+}
+.player-built {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.player-built .built-img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px #0006;
+}
