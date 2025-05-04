@@ -198,24 +198,39 @@ function shuffle(arr) {
 }
 
 const districtCards = [
+  // 黄色（贵族）
   { name: "palace", score: 5, color: "yellow", img: "assets/cards/palace.jpg", count: 3 },
   { name: "castle", score: 4, color: "yellow", img: "assets/cards/castle.jpg", count: 4 },
   { name: "manor", score: 3, color: "yellow", img: "assets/cards/manor.jpg", count: 5 },
+  // 红色（军事）
   { name: "fortress", score: 5, color: "red", img: "assets/cards/fortress.jpg", count: 2 },
   { name: "battlefield", score: 3, color: "red", img: "assets/cards/battlefield.jpg", count: 3 },
   { name: "prison", score: 2, color: "red", img: "assets/cards/prison.jpg", count: 3 },
   { name: "watchtower", score: 1, color: "red", img: "assets/cards/watchtower.jpg", count: 3 },
+  // 蓝色（宗教）
   { name: "cathedral", score: 5, color: "blue", img: "assets/cards/cathedral.jpg", count: 2 },
   { name: "monastery", score: 3, color: "blue", img: "assets/cards/monastery.jpg", count: 3 },
   { name: "church", score: 2, color: "blue", img: "assets/cards/church.jpg", count: 3 },
   { name: "temple", score: 1, color: "blue", img: "assets/cards/temple.jpg", count: 3 },
+  // 绿色（商业）
   { name: "townhall", score: 5, color: "green", img: "assets/cards/townhall.jpg", count: 2 },
   { name: "harbor", score: 4, color: "green", img: "assets/cards/harbor.jpg", count: 3 },
   { name: "docks", score: 3, color: "green", img: "assets/cards/docks.jpg", count: 3 },
   { name: "tradingpost", score: 2, color: "green", img: "assets/cards/tradingpost.jpg", count: 3 },
   { name: "market", score: 2, color: "green", img: "assets/cards/market.jpg", count: 4 },
-  { name: "tavern", score: 1, color: "green", img: "assets/cards/tavern.jpg", count: 5 }
-  // ... 可继续补充紫色卡等
+  { name: "tavern", score: 1, color: "green", img: "assets/cards/tavern.jpg", count: 5 },
+  // 紫色（特殊）
+  { name: "dragongate", score: 8, color: "purple", img: "assets/cards/dragongate.jpg", count: 1 },
+  { name: "university", score: 8, color: "purple", img: "assets/cards/university.jpg", count: 1 },
+  { name: "greatwall", score: 6, color: "purple", img: "assets/cards/greatwall.jpg", count: 1 },
+  { name: "library", score: 6, color: "purple", img: "assets/cards/library.jpg", count: 1 },
+  { name: "school", score: 6, color: "purple", img: "assets/cards/school.jpg", count: 1 },
+  { name: "graveyard", score: 5, color: "purple", img: "assets/cards/graveyard.jpg", count: 1 },
+  { name: "laboratory", score: 5, color: "purple", img: "assets/cards/laboratory.jpg", count: 1 },
+  { name: "observatory", score: 5, color: "purple", img: "assets/cards/observatory.jpg", count: 1 },
+  { name: "smithy", score: 5, color: "purple", img: "assets/cards/smithy.jpg", count: 1 },
+  { name: "keep", score: 3, color: "purple", img: "assets/cards/keep.jpg", count: 2 },
+  { name: "hauntedciry", score: 2, color: "purple", img: "assets/cards/hauntedciry.jpg", count: 1 }
 ];
 
 function generateDistrictDeck() {
