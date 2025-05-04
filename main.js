@@ -1439,5 +1439,205 @@ function startBishopTurn() {
   // showBishopPanel();
 }
 
+function startBishopTurn() {
+  showBishopPanel();
+}
+
+function showBishopPanel() {
+  playSound('magic');
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 主教虚拟玩家对象
+  const bishop = {
+    name: "宋卓宣",
+    role: "主教",
+    roleKey: "bishop",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4), // 随机4张
+    built: []
+  };
+
+  // 主教信息弹窗
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/bishop.jpg" alt="主教" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">宋卓宣（主教）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('bishop')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">×${bishop.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="bishop-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${bishop.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <button class="main-btn" id="bishop-get-coin-btn" style="margin-top:10px;">主教选择拿取4枚金币</button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 禁止查看主教手牌
+  setTimeout(() => {
+    const handArea = document.getElementById('bishop-hand-area');
+    if (handArea) {
+      handArea.onclick = () => {
+        const tip = document.createElement('div');
+        tip.style.position = 'fixed';
+        tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+        tip.style.background = 'rgba(0,0,0,0.85)';
+        tip.style.zIndex = '6000';
+        tip.style.display = 'flex';
+        tip.style.alignItems = 'center';
+        tip.style.justifyContent = 'center';
+        tip.innerHTML = `
+          <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+            <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+            <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+          </div>
+        `;
+        document.body.appendChild(tip);
+        playSound('notification');
+      };
+    }
+  }, 0);
+
+  // 拿金币按钮
+  document.getElementById('bishop-get-coin-btn').onclick = () => {
+    playSound('coin');
+    bishop.coins += 4;
+    popup.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">主教获得4枚金币，现在有${bishop.coins}枚金币</div>
+        <button class="main-btn" id="bishop-build-btn">主教开始建造地区</button>
+      </div>
+    `;
+    document.getElementById('bishop-build-btn').onclick = () => {
+      // 自动建造1~2个地区，总花费不超过当前金币
+      let total = 0, built = [];
+      for (let i = 0; i < bishop.hand.length; i++) {
+        if (built.length < 2 && total + bishop.hand[i].score <= bishop.coins) {
+          built.push(bishop.hand[i]);
+          total += bishop.hand[i].score;
+        }
+      }
+      bishop.built = built;
+      bishop.coins -= total;
+      popup.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+          <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+            主教建造了${built.length}个地区，总花费${total}金币，剩余${bishop.coins}金币
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;">
+            ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+              <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+              <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+            </div>`).join('')}
+          </div>
+          <button class="main-btn" id="bishop-bonus-btn">结算宗教奖励</button>
+        </div>
+      `;
+      playSound('construct');
+      document.getElementById('bishop-bonus-btn').onclick = () => {
+        // 结算蓝色奖励
+        const blueCount = bishop.built.filter(card => card.color === 'blue').length;
+        let bonus = blueCount;
+        bishop.coins += bonus;
+        popup.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+            <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+              主教已建造${blueCount}个宗教地区，获得${bonus}枚金币奖励
+            </div>
+            <button class="main-btn" id="bishop-bless-btn">主教：“以主教之名————”</button>
+          </div>
+        `;
+        playSound('coin');
+        document.getElementById('bishop-bless-btn').onclick = () => {
+          showBishopBlessingVideo(() => {
+            // 祝福视频关闭后，主教行动结束
+            popup.innerHTML = `
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                <button class="main-btn" id="bishop-end-btn">主教行动结束</button>
+              </div>
+            `;
+            document.getElementById('bishop-end-btn').onclick = () => {
+              popup.remove();
+              // 进入下一个角色流程
+              startMerchantTurn();
+            };
+          });
+        };
+      };
+    };
+  };
+}
+
+function showBishopBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="bishop-bless-video" src="assets/videos/bishop.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="bishop-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="bishop-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('bishop-bless-video');
+  document.getElementById('bishop-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('bishop-bless-close').onclick = () => {
+    popup.remove();
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="bishop-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="bishop-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('bishop-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('bishop-bless-close2').onclick = () => {
+      popup.remove();
+      if (onClose) onClose();
+    };
+  };
+}
+
+function startMerchantTurn() {
+  // TODO: 这里进入商人流程
+  // showMerchantPanel();
+}
+
 
 
