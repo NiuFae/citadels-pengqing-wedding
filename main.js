@@ -102,8 +102,8 @@ function showSkillPopup(role) {
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
   popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
-  popup.style.background = 'rgba(0,0,0,0.7)';
-  popup.style.zIndex = '2000';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '5000';
   popup.style.display = 'flex';
   popup.style.alignItems = 'center';
   popup.style.justifyContent = 'center';
@@ -123,7 +123,7 @@ function showHandPopup(player) {
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
   popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
-  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.background = 'rgba(0,0,0,0.85)';
   popup.style.zIndex = '2000';
   popup.style.display = 'flex';
   popup.style.alignItems = 'center';
@@ -624,7 +624,7 @@ function showFirstRoundRules(onClose) {
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
   popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
-  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.background = 'rgba(0,0,0,0.85)';
   popup.style.zIndex = '3000';
   popup.style.display = 'flex';
   popup.style.alignItems = 'center';
@@ -676,7 +676,7 @@ function showAssassinPanel() {
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
   popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
-  popup.style.background = 'rgba(0,0,0,0.7)';
+  popup.style.background = 'rgba(0,0,0,0.85)';
   popup.style.zIndex = '4000';
   popup.style.display = 'flex';
   popup.style.alignItems = 'center';
@@ -693,8 +693,9 @@ function showAssassinPanel() {
       <div style="margin-bottom:6px;">
         <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">${assassin.coins}</span>
       </div>
-      <div style="margin-bottom:6px;">
-        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;"> <span style="color:#ffe6b3;">×${assassin.hand.length}</span>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="assassin-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${assassin.hand.length}</span>
       </div>
       <div style="margin-bottom:10px;">
         <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
@@ -705,6 +706,31 @@ function showAssassinPanel() {
   popup.innerHTML = html;
   document.body.appendChild(popup);
 
+  setTimeout(() => {
+  const handArea = document.getElementById('assassin-hand-area');
+  if (handArea) {
+    handArea.onclick = () => {
+      // 弹出不能查看他人卡牌的提示
+      const tip = document.createElement('div');
+      tip.style.position = 'fixed';
+      tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+      tip.style.background = 'rgba(0,0,0,0.85)';
+      tip.style.zIndex = '6000';
+      tip.style.display = 'flex';
+      tip.style.alignItems = 'center';
+      tip.style.justifyContent = 'center';
+      tip.innerHTML = `
+        <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+          <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+          <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+        </div>
+      `;
+      document.body.appendChild(tip);
+      playSound('notification');
+    };
+  }
+}, 0);
+
   // 刺客技能按钮
   document.getElementById('assassin-skill-btn').onclick = () => {
     playSound('magic');
@@ -713,7 +739,7 @@ function showAssassinPanel() {
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
         <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">刺客发动技能</div>
         <img src="assets/roles/assassin.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
-        <button class="main-btn" id="assassin-kill-btn">此刻选择刺杀【商人】</button>
+        <button class="main-btn" id="assassin-kill-btn">刺客选择刺杀【商人】</button>
       </div>
     `;
     document.getElementById('assassin-kill-btn').onclick = () => {
