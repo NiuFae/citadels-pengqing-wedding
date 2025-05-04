@@ -57,13 +57,34 @@ startBtn.addEventListener('click', () => {
   showSection('rules-section');
   // 填充规则内容
   document.getElementById('rules-content').innerHTML = rulesText;
+  renderBackToCoverBtn();
 });
 
 // ========== 规则简介区 ==========
 const toRoleBtn = document.getElementById('to-role-btn');
+function renderBackToCoverBtn() {
+  // 避免重复添加
+  if (document.getElementById('back-to-cover-btn')) return;
+  const btn = document.createElement('button');
+  btn.id = 'back-to-cover-btn';
+  btn.className = 'main-btn';
+  btn.textContent = '返回首页聆听绝美音效';
+  btn.onclick = () => {
+    playSound('click');
+    showSection('cover-section');
+    setTimeout(() => {
+      coverAudio.currentTime = 0;
+      coverAudio.play().catch(() => {});
+    }, 200);
+  };
+  // 插入到规则按钮下方
+  toRoleBtn.parentNode.insertBefore(btn, toRoleBtn.nextSibling);
+}
+
 toRoleBtn.addEventListener('click', () => {
   playSound('click');
   showSection('role-section');
+  currentDraw = 0;
   renderRoleDraw();
 });
 
@@ -72,6 +93,7 @@ const roleDrawArea = document.getElementById('role-draw-area');
 const roleResult = document.getElementById('role-result');
 const roleResultText = document.getElementById('role-result-text');
 const toGameBtn = document.getElementById('to-game-btn');
+const roleSection = document.getElementById('role-section');
 
 // 角色抽取顺序：P抽国王，W抽皇后
 const roleDrawOrder = [
@@ -83,6 +105,14 @@ let currentDraw = 0;
 function renderRoleDraw() {
   roleDrawArea.innerHTML = '';
   roleResult.classList.add('hidden');
+  // 提示
+  let tip = document.querySelector('.draw-tip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.className = 'draw-tip';
+    roleSection.insertBefore(tip, roleDrawArea);
+  }
+  tip.textContent = `请玩家 ${roleDrawOrder[currentDraw].player} 抽取角色`;
   // 生成三张背面卡
   for (let i = 0; i < 3; i++) {
     const card = document.createElement('div');
@@ -98,7 +128,7 @@ function handleRoleCardClick(card) {
   card.classList.add('flipped');
   setTimeout(() => {
     card.className = 'role-card-front';
-    card.innerHTML = `<img src="${roleDrawOrder[currentDraw].img}" alt="${roleDrawOrder[currentDraw].role}" style="width:100%;height:100%;border-radius:10px;">`;
+    card.innerHTML = `<img src="${roleDrawOrder[currentDraw].img}" alt="${roleDrawOrder[currentDraw].role}" style="width:92%;height:92%;border-radius:12px;">`;
     // 只保留当前卡
     Array.from(roleDrawArea.children).forEach((c, idx) => {
       if (c !== card) c.style.display = 'none';
@@ -108,9 +138,18 @@ function handleRoleCardClick(card) {
       roleResultText.innerHTML = `${roleDrawOrder[currentDraw].player} 抽到的角色是 <b>${roleDrawOrder[currentDraw].role}</b>！`;
       roleResult.classList.remove('hidden');
       playSound('notification');
+      // 放大结果卡牌
+      card.style.width = '56vw';
+      card.style.height = '76vw';
+      card.style.maxWidth = '340px';
+      card.style.maxHeight = '440px';
+      card.style.minWidth = '180px';
+      card.style.minHeight = '220px';
+      // 提示字体更大
+      roleResultText.style.fontSize = '2.1rem';
       currentDraw++;
       if (currentDraw < roleDrawOrder.length) {
-        toGameBtn.textContent = '轮到吴璨抽取';
+        toGameBtn.textContent = `请玩家 ${roleDrawOrder[currentDraw].player} 抽取角色`;
       } else {
         toGameBtn.textContent = '进入游戏';
       }
