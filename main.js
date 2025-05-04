@@ -942,7 +942,7 @@ function showThiefPanel() {
                 document.getElementById('thief-end-btn').onclick = () => {
                   popup.remove();
                   // 进入下一个角色流程
-                  // startMagicianTurn();
+                  startMagicianTurn();
                 };
               };
             };
@@ -1027,4 +1027,223 @@ function highlightAndTransferCoinsFromKingToThief(thief, callback) {
     renderPlayerPanel(currentPlayerIdx); // 刷新面板
     if (callback) setTimeout(callback, 600);
   }, 1200);
+}
+
+function startMagicianTurn() {
+  showMagicianPanel();
+}
+
+function showMagicianPanel() {
+  // 魔法师虚拟玩家对象
+  const magician = {
+    name: "施佳颖",
+    role: "魔法师",
+    roleKey: "magician",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4), // 随机4张烂牌
+    built: []
+  };
+
+  // 国王对象
+  const king = players[0];
+
+  // 魔法师信息弹窗
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/magician.jpg" alt="魔法师" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">施佳颖（魔法师）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('magician')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="margin-left:2px;">×${magician.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="magician-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${magician.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <button class="main-btn" id="magician-skill-btn" style="margin-top:10px;">魔法师选择与国王交换手牌</button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 禁止查看魔法师手牌
+  setTimeout(() => {
+    const handArea = document.getElementById('magician-hand-area');
+    if (handArea) {
+      handArea.onclick = () => {
+        const tip = document.createElement('div');
+        tip.style.position = 'fixed';
+        tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+        tip.style.background = 'rgba(0,0,0,0.85)';
+        tip.style.zIndex = '6000';
+        tip.style.display = 'flex';
+        tip.style.alignItems = 'center';
+        tip.style.justifyContent = 'center';
+        tip.innerHTML = `
+          <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+            <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+            <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+          </div>
+        `;
+        document.body.appendChild(tip);
+        playSound('notification');
+      };
+    }
+  }, 0);
+
+  // 技能按钮
+  document.getElementById('magician-skill-btn').onclick = () => {
+    playSound('magic');
+    // 展示双方手牌
+    popup.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">魔法师与国王交换所有手牌</div>
+        <div style="display:flex;gap:30px;margin-bottom:18px;">
+          <div>
+            <div style="color:#ffe6b3;font-weight:bold;margin-bottom:6px;">魔法师原手牌</div>
+            <div style="display:flex;gap:6px;">
+              ${magician.hand.map(card => `<img src="${card.img}" style="width:48px;height:70px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;" title="${districtNameMap[card.name] || card.name}">`).join('')}
+            </div>
+          </div>
+          <div>
+            <div style="color:#ffe6b3;font-weight:bold;margin-bottom:6px;">国王原手牌</div>
+            <div style="display:flex;gap:6px;">
+              ${king.hand.map(card => `<img src="${card.img}" style="width:48px;height:70px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;" title="${districtNameMap[card.name] || card.name}">`).join('')}
+            </div>
+          </div>
+        </div>
+        <button class="main-btn" id="magician-exchange-btn">确定交换</button>
+      </div>
+    `;
+    document.getElementById('magician-exchange-btn').onclick = () => {
+      playSound('magic');
+      // 交换手牌
+      const temp = magician.hand;
+      magician.hand = king.hand;
+      king.hand = temp;
+      renderPlayerPanel(currentPlayerIdx); // 刷新面板
+      // 提示
+      popup.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+          <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">魔法师与国王交换了所有手牌</div>
+          <button class="main-btn" id="magician-bless-btn">魔法师：这次交换是双赢吗？</button>
+        </div>
+      `;
+      document.getElementById('magician-bless-btn').onclick = () => {
+        showMagicianBlessingVideo(() => {
+          // 祝福视频关闭后，进入拿金币
+          popup.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+              <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">魔法师可以选择拿取4枚金币</div>
+              <button class="main-btn" id="magician-get-coin-btn">魔法师选择拿取4枚金币</button>
+            </div>
+          `;
+          document.getElementById('magician-get-coin-btn').onclick = () => {
+            playSound('coin');
+            magician.coins += 4;
+            popup.innerHTML = `
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">魔法师获得4枚金币，现在有${magician.coins}枚金币</div>
+                <button class="main-btn" id="magician-build-btn">魔法师开始建造地区</button>
+              </div>
+            `;
+            document.getElementById('magician-build-btn').onclick = () => {
+              // 自动建造1~2个地区，总花费不超过魔法师当前金币
+              let total = 0, built = [];
+              for (let i = 0; i < magician.hand.length; i++) {
+                if (built.length < 2 && total + magician.hand[i].score <= magician.coins) {
+                  built.push(magician.hand[i]);
+                  total += magician.hand[i].score;
+                }
+              }
+              magician.built = built;
+              magician.coins -= total;
+              // 建造动画
+              popup.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+                  <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+                    魔法师建造了${built.length}个地区，总花费${total}金币，剩余${magician.coins}金币
+                  </div>
+                  <div style="display:flex;gap:10px;margin-bottom:12px;">
+                    ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+                      <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+                      <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+                    </div>`).join('')}
+                  </div>
+                  <button class="main-btn" id="magician-end-btn">魔法师行动结束</button>
+                </div>
+              `;
+              playSound('construct');
+              document.getElementById('magician-end-btn').onclick = () => {
+                popup.remove();
+                // 进入下一个角色流程
+                // startKingTurn();
+              };
+            };
+          };
+        });
+      };
+    };
+  };
+}
+
+function showMagicianBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="magician-bless-video" src="assets/videos/magician.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="magician-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="magician-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('magician-bless-video');
+  document.getElementById('magician-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('magician-bless-close').onclick = () => {
+    popup.remove();
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="magician-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="magician-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('magician-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('magician-bless-close2').onclick = () => {
+      popup.remove();
+      if (onClose) onClose();
+    };
+  };
 }
