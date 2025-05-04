@@ -54,14 +54,14 @@ function renderPlayerPanel(currentIdx = 0) {
       <span class="player-name">${p.name}（${p.role}）</span>
     `;
     // 技能按钮
-    if (roleSkills[p.role.toLowerCase()]) {
+    if (roleSkills[p.roleKey]) {
       const skillBtn = document.createElement('button');
       skillBtn.className = 'skill-btn';
       skillBtn.title = '查看技能';
       skillBtn.innerHTML = '？';
       skillBtn.onclick = (e) => {
         e.stopPropagation();
-        showSkillPopup(p.role.toLowerCase());
+        showSkillPopup(p.role.roleKey);
       };
       header.appendChild(skillBtn);
     }
@@ -331,6 +331,7 @@ const players = [
   {
     name: "彭青",
     role: "国王",
+    roleKey: "king",
     coins: 4,
     hand: [],
     built: []
@@ -338,6 +339,7 @@ const players = [
   {
     name: "吴璨",
     role: "皇后",
+    roleKey: "queen",
     coins: 4,
     hand: [],
     built: []
