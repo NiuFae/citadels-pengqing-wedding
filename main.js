@@ -267,20 +267,26 @@ function showDealIntro() {
   coinInfo.style.display = 'none';
   playerInfo.style.display = 'none';
 
-  const intro = document.createElement('div');
-  intro.className = 'rules-content';
-  intro.innerHTML = `回合开始前，每位玩家会获得4张随机地区卡和4枚金币。`;
-  cardArea.appendChild(intro);
+  // 只在第一个玩家时显示引导词和按钮
+  if (currentPlayerIdx === 0) {
+    const intro = document.createElement('div');
+    intro.className = 'rules-content';
+    intro.innerHTML = `回合开始前，每位玩家会获得4张随机地区卡和4枚金币。`;
+    cardArea.appendChild(intro);
 
-  const dealBtn = document.createElement('button');
-  dealBtn.className = 'main-btn';
-  dealBtn.style.marginTop = '18px';
-  dealBtn.textContent = `看看 ${players[currentPlayerIdx].name} 的运气如何`;
-  dealBtn.onclick = () => {
-    playSound('shuffle');
+    const dealBtn = document.createElement('button');
+    dealBtn.className = 'main-btn';
+    dealBtn.style.marginTop = '18px';
+    dealBtn.textContent = `看看 ${players[currentPlayerIdx].name} 的运气如何`;
+    dealBtn.onclick = () => {
+      playSound('shuffle');
+      showDealAnimation();
+    };
+    actionArea.appendChild(dealBtn);
+  } else {
+    // 直接进入抽卡动画
     showDealAnimation();
-  };
-  actionArea.appendChild(dealBtn);
+  }
 }
 
 function showDealAnimation() {
@@ -303,8 +309,13 @@ function showDealAnimation() {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'district-card';
     cardDiv.style.background = `url('assets/others/card_back.jpg') center/cover no-repeat`;
-    cardDiv.style.width = '90px';
-    cardDiv.style.height = '130px';
+    // 适配手机和PC，使用vw单位
+    cardDiv.style.width = '35vw';
+    cardDiv.style.height = '50vw';
+    cardDiv.style.maxWidth = '200px';
+    cardDiv.style.maxHeight = '280px';
+    cardDiv.style.minWidth = '120px';
+    cardDiv.style.minHeight = '160px';
     cardDiv.style.position = 'relative';
     cardGrid.appendChild(cardDiv);
   }
@@ -324,8 +335,8 @@ function showDealAnimation() {
       cardDiv.style.background = '';
       cardDiv.innerHTML = `
         <img src="${hand[idx].img}" alt="${districtNameMap[hand[idx].name] || hand[idx].name}" 
-          style="width:100%;height:100px;object-fit:contain;border-radius:8px 8px 0 0;">
-        <div class="district-info" style="font-size:1.1rem;font-weight:bold;color:#ffe6b3;">
+          style="width:100%;height:70%;object-fit:contain;border-radius:8px 8px 0 0;">
+        <div class="district-info">
           ${districtNameMap[hand[idx].name] || hand[idx].name}
         </div>
       `;
@@ -339,10 +350,11 @@ function showDealAnimation() {
     actionArea.innerHTML = '';
     const nextBtn = document.createElement('button');
     nextBtn.className = 'main-btn';
+    // 优化按钮文案
     if (currentPlayerIdx === 0) {
-      nextBtn.textContent = '接下来看看 吴璨 的运气';
+      nextBtn.textContent = '接下来，请 彭青 获得4枚金币';
     } else {
-      nextBtn.textContent = '进入主游戏操作区';
+      nextBtn.textContent = '接下来，请 吴璨 获得4枚金币';
     }
     nextBtn.onclick = () => {
       playSound('click');
@@ -411,7 +423,7 @@ function showCoinAnimation() {
     const nextBtn = document.createElement('button');
     nextBtn.className = 'main-btn';
     if (currentPlayerIdx === 0) {
-      nextBtn.textContent = '接下来看看 吴璨 的运气';
+      nextBtn.textContent = '接下来，请 吴璨 获得4枚金币';
     } else {
       nextBtn.textContent = '进入主游戏操作区';
     }
@@ -419,7 +431,8 @@ function showCoinAnimation() {
       playSound('click');
       if (currentPlayerIdx === 0) {
         currentPlayerIdx = 1;
-        showDealIntro();
+        // 省略D页面，直接进入吴璨抽卡动画
+        showDealAnimation();
       } else {
         coinInfo.style.display = '';
         playerInfo.style.display = '';
