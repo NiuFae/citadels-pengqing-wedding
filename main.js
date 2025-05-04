@@ -786,7 +786,7 @@ function showAssassinPanel() {
           document.getElementById('assassin-end-btn').onclick = () => {
             popup.remove();
             // 这里可以进入下一个角色流程
-            // startThiefTurn();
+            startThiefTurn();// 让流程进入盗贼
           };
         };
       };
