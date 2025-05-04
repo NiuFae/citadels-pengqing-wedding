@@ -1404,7 +1404,7 @@ function showKingNobleBonus(king) {
   popup.innerHTML = `
     <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
       <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
-        国王已建造${nobleCount}个贵族地区，获得${bonus}枚金币奖励
+        国王已建造${nobleCount}个贵族地区（金色），获得${bonus}枚金币奖励
       </div>
       <button class="main-btn" id="king-end-btn">国王回合结束</button>
     </div>
