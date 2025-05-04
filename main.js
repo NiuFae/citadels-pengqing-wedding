@@ -50,9 +50,9 @@ function renderPlayerPanel(currentIdx = 0) {
     const header = document.createElement('div');
     header.className = 'player-header';
     header.innerHTML = `
-      <img class="player-role-img" src="assets/roles/${p.role.toLowerCase()}.jpg" alt="${p.role}">
+      <img class="player-role-img" src="assets/roles/${p.roleKey}.jpg" alt="${p.role}">
       <span class="player-name">${p.name}（${p.role}）</span>
-    `;
+`    ;
     // 技能按钮
     if (roleSkills[p.roleKey]) {
       const skillBtn = document.createElement('button');
@@ -61,7 +61,7 @@ function renderPlayerPanel(currentIdx = 0) {
       skillBtn.innerHTML = '？';
       skillBtn.onclick = (e) => {
         e.stopPropagation();
-        showSkillPopup(p.role.roleKey);
+        showSkillPopup(p.roleKey);
       };
       header.appendChild(skillBtn);
     }
@@ -615,7 +615,6 @@ function showCoinAnimation() {
         renderPlayerPanel(currentPlayerIdx); // <--- 新增
         // 你可以在这里继续开发主操作区
       }
-      renderPlayerPanel(currentPlayerIdx); // <--- 新增
     };
     actionArea.appendChild(nextBtn);
   }
