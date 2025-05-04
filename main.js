@@ -674,7 +674,7 @@ function showAssassinPanel() {
   coinInfo.style.display = 'none';
   // 假设刺客是虚拟玩家
   const assassin = {
-    name: "GPT老师",
+    name: "ChatGPT",
     role: "刺客",
     roleKey: "assassin",
     coins: 4,
@@ -1661,7 +1661,7 @@ function showMerchantPanel() {
 
   // 商人虚拟玩家对象
   const merchant = {
-    name: "Cursor老师",
+    name: "CursorAI",
     role: "商人",
     roleKey: "merchant",
     coins: 4,
@@ -1674,7 +1674,7 @@ function showMerchantPanel() {
     <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
       <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
         <img class="player-role-img" src="assets/roles/merchant.jpg" alt="商人" style="height:60px;width:60px;">
-        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">Cursor老师（商人）</span>
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">CursorAI（商人）</span>
         <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('merchant')">？</button>
       </div>
       <div style="margin-bottom:6px;">
