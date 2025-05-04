@@ -762,18 +762,21 @@ function showAssassinPanel() {
           </div>
         `;
         document.getElementById('assassin-build-btn').onclick = () => {
-          // 随机建造1~2个地区，总花费≤8
+          // 随机建造1~2个地区，总花费≤刺客当前金币
           let total = 0, built = [];
           for (let i = 0; i < assassin.hand.length; i++) {
-            if (built.length < 2 && total + assassin.hand[i].score <= 8) {
+            if (built.length < 2 && total + assassin.hand[i].score <= assassin.coins) {
               built.push(assassin.hand[i]);
               total += assassin.hand[i].score;
             }
           }
           assassin.built = built;
+          assassin.coins -= total; // 建造后扣除金币
           popup.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-              <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">刺客建造了${built.length}个地区，总花费${total}金币</div>
+              <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+                刺客建造了${built.length}个地区，总花费${total}金币，剩余${assassin.coins}金币
+              </div>
               <div style="display:flex;gap:10px;margin-bottom:12px;">
                 ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;">
                   <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
@@ -923,7 +926,8 @@ function showThiefPanel() {
                 // 建造动画
                 popup.innerHTML = `
                   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-                    <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼建造了${built.length}个地区，总花费${total}金币</div>
+                    <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼建造了${built.length}个地区，总花费${total}金币，剩余${thief.coins}金币
+                    </div>
                     <div style="display:flex;gap:10px;margin-bottom:12px;">
                       ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
                         <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
