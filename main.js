@@ -101,18 +101,19 @@ const roleDrawOrder = [
   { player: '吴璨', role: '皇后', img: 'assets/roles/queen.jpg' },
 ];
 let currentDraw = 0;
+let drawTip = null;
 
 function renderRoleDraw() {
   roleDrawArea.innerHTML = '';
   roleResult.classList.add('hidden');
-  // 提示
-  let tip = document.querySelector('.draw-tip');
-  if (!tip) {
-    tip = document.createElement('div');
-    tip.className = 'draw-tip';
-    roleSection.insertBefore(tip, roleDrawArea);
+  // 只显示“请玩家 XX 抽取角色”
+  if (!drawTip) {
+    drawTip = document.createElement('div');
+    drawTip.className = 'draw-tip';
+    roleSection.insertBefore(drawTip, roleDrawArea);
   }
-  tip.textContent = `请玩家 ${roleDrawOrder[currentDraw].player} 抽取角色`;
+  drawTip.textContent = `请玩家 ${roleDrawOrder[currentDraw].player} 抽取角色`;
+  drawTip.style.display = '';
   // 生成三张背面卡
   for (let i = 0; i < 3; i++) {
     const card = document.createElement('div');
@@ -133,9 +134,12 @@ function handleRoleCardClick(card) {
     Array.from(roleDrawArea.children).forEach((c, idx) => {
       if (c !== card) c.style.display = 'none';
     });
+    // 隐藏上方提示
+    if (drawTip) drawTip.style.display = 'none';
     // 展示结果
     setTimeout(() => {
-      roleResultText.innerHTML = `${roleDrawOrder[currentDraw].player} 抽到的角色是 <b>${roleDrawOrder[currentDraw].role}</b>！`;
+      // 只在角色名加粗加大，其他正常
+      roleResultText.innerHTML = `${roleDrawOrder[currentDraw].player} 抽到的角色是 <span style="font-weight:bold;font-size:2.1rem;color:#ffe6b3;">${roleDrawOrder[currentDraw].role}</span>！`;
       roleResult.classList.remove('hidden');
       playSound('notification');
       // 放大结果卡牌
@@ -145,8 +149,12 @@ function handleRoleCardClick(card) {
       card.style.maxHeight = '440px';
       card.style.minWidth = '180px';
       card.style.minHeight = '220px';
-      // 提示字体更大
-      roleResultText.style.fontSize = '2.1rem';
+      // 结果提示字体适当缩小，始终一行
+      roleResultText.style.fontSize = '1.25rem';
+      roleResultText.style.fontWeight = 'normal';
+      roleResultText.style.whiteSpace = 'nowrap';
+      roleResultText.style.overflow = 'hidden';
+      roleResultText.style.textOverflow = 'ellipsis';
       currentDraw++;
       if (currentDraw < roleDrawOrder.length) {
         toGameBtn.textContent = `请玩家 ${roleDrawOrder[currentDraw].player} 抽取角色`;
