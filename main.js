@@ -3277,24 +3277,29 @@ function showWarlordSkill(players, onFinish) {
   // 不能破坏主教的地区
   const bishop = players.find(p => p.roleKey === 'bishop');
   // 收集所有可被破坏的地区
-  let bestTarget = null;
-  let bestValue = -Infinity;
-  players.forEach(p => {
-    if (p === warlord) return;
-    if (bishop && p === bishop) return; // 不能破坏主教
-    p.built.forEach((card, idx) => {
-      // 破坏价值=地区分数-破坏成本
-      const cost = Math.max(0, card.score - 1);
-      if (warlord.coins >= cost) {
-        // 优先炸第一名的高分建筑
-        const value = card.score + (p === players[0] ? 2 : 0); // 炸第一名加权
-        if (value > bestValue) {
-          bestValue = value;
-          bestTarget = { player: p, card, idx, cost };
-        }
-      }
-    });
+  // 记录所有可炸目标的评分
+let allTargets = [];
+players.forEach(p => {
+  if (p === warlord) return;
+  if (bishop && p === bishop) return; // 不能破坏主教
+  p.built.forEach((card, idx) => {
+    const cost = Math.max(0, card.score - 1);
+    if (warlord.coins >= cost) {
+      const value = card.score + (p === players[0] ? 2 : 0); // 炸国王加权
+      allTargets.push({
+        player: p,
+        card,
+        idx,
+        cost,
+        value,
+        isKing: p === players[0]
+      });
+    }
   });
+});
+allTargets.sort((a, b) => b.value - a.value);
+const bestTarget = allTargets[0];
+  
 
   // 弹窗
   let html = `<div style="text-align:center;">
