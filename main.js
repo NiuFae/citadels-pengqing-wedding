@@ -2394,7 +2394,7 @@ function showAlchemistPanel() {
           <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">炼金术士发动技能</div>
           <img src="assets/roles/alchemist.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
           <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
-            炼金术士发动技能，拿回${total}金币，现在有${alchemist.coins}金币
+            拿回${total}金币，现在有${alchemist.coins}金币
           </div>
           <button class="main-btn" id="alchemist-bless-btn">炼金术士：“拿回属于我的一切”（握爪）</button>
         </div>
