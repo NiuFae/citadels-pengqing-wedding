@@ -3399,11 +3399,7 @@ function showGameResult() {
       <td>${r.score}</td>
     </tr>`;
   });
-  html += `</table>
-    <div style="text-align:center;margin-top:18px;">
-      <button class="main-btn" onclick="location.reload()">再玩一次</button>
-    </div>
-  `;
+ 
 
   // 弹窗
   const popup = document.createElement('div');
