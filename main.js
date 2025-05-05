@@ -671,14 +671,9 @@ function showAssassinPanel() {
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
   // 假设刺客是虚拟玩家
-  const assassin = {
-    name: "ChatGPT",
-    role: "刺客",
-    roleKey: "assassin",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4), // 随机4张
-    built: []
-  };
+  const assassin = players.find(p => p.roleKey === 'assassin');
+  if (assassin.hand.length === 0) assassin.hand = generateDistrictDeck().slice(0, 4);
+  if (assassin.coins === 0) assassin.coins = 4;
 
   // 刺客信息弹窗
   const popup = document.createElement('div');
@@ -816,14 +811,9 @@ function showThiefPanel() {
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
   // 盗贼玩家对象
-  const thief = {
-    name: "牛斐",
-    role: "盗贼",
-    roleKey: "thief",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4), // 随机4张
-    built: []
-  };
+  const thief = players.find(p => p.roleKey === 'thief');
+  if (thief.hand.length === 0) thief.hand = generateDistrictDeck().slice(0, 4);
+  if (thief.coins === 0) thief.coins = 4;
 
   // 盗贼面板内容
   let html = `
@@ -1052,14 +1042,9 @@ function showMagicianPanel() {
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
   // 魔法师虚拟玩家对象
-  const magician = {
-    name: "施佳颖",
-    role: "魔法师",
-    roleKey: "magician",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4), // 随机4张烂牌
-    built: []
-  };
+  const magician = players.find(p => p.roleKey === 'magician');
+  if (magician.hand.length === 0) magician.hand = generateDistrictDeck().slice(0, 4);
+  if (magician.coins === 0) magician.coins = 4;
 
   // 国王对象
   const king = players[0];
@@ -1461,14 +1446,9 @@ function showBishopPanel() {
   coinInfo.style.display = 'none';
 
   // 主教虚拟玩家对象
-  const bishop = {
-    name: "宋卓宣",
-    role: "主教",
-    roleKey: "bishop",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4), // 随机4张
-    built: []
-  };
+  const bishop = players.find(p => p.roleKey === 'bishop');
+  if (bishop.hand.length === 0) bishop.hand = generateDistrictDeck().slice(0, 4);
+  if (bishop.coins === 0) bishop.coins = 4;
 
   // 主教信息弹窗
   let html = `
@@ -1665,14 +1645,9 @@ function showMerchantPanel() {
   coinInfo.style.display = 'none';
 
   // 商人虚拟玩家对象
-  const merchant = {
-    name: "CursorAI",
-    role: "商人",
-    roleKey: "merchant",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4), // 随机4张
-    built: []
-  };
+  const merchant = players.find(p => p.roleKey === 'merchant');
+  if (merchant.hand.length === 0) merchant.hand = generateDistrictDeck().slice(0, 4);
+  if (merchant.coins === 0) merchant.coins = 4;
 
   // 商人信息弹窗
   let html = `
@@ -1766,14 +1741,9 @@ function showArchitectPanel() {
   coinInfo.style.display = 'none';
 
   // 建筑师虚拟玩家对象
-  const architect = {
-    name: "李琪",
-    role: "建筑师",
-    roleKey: "architect",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4), // 随机4张
-    built: []
-  };
+  const architect = players.find(p => p.roleKey === 'architect');
+  if (architect.hand.length === 0) architect.hand = generateDistrictDeck().slice(0, 4);
+  if (architect.coins === 0) architect.coins = 4;
 
   // 建筑师信息弹窗
   let html = `
@@ -1993,14 +1963,9 @@ function showWarlordPanel() {
   coinInfo.style.display = 'none';
 
   // 军阀虚拟玩家对象
-  const warlord = {
-    name: "焦傲然",
-    role: "军阀",
-    roleKey: "warlord",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4), // 随机4张
-    built: []
-  };
+ const warlord = players.find(p => p.roleKey === 'warlord');
+  if (warlord.hand.length === 0) warlord.hand = generateDistrictDeck().slice(0, 4);
+  if (warlord.coins === 0) warlord.coins = 4;
 
   // 军阀信息弹窗
   let html = `
@@ -2322,14 +2287,9 @@ function showAlchemistPanel() {
   // renderPlayerPanel(currentPlayerIdx);
 
   // 虚拟玩家对象
-  const alchemist = {
-    name: "刘泽仁",
-    role: "炼金术士",
-    roleKey: "alchemist",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4),
-    built: []
-  };
+  const alchemist = players.find(p => p.roleKey === 'alchemist');
+  if (alchemist.hand.length === 0) alchemist.hand = generateDistrictDeck().slice(0, 4);
+  if (alchemist.coins === 0) alchemist.coins = 4;
 
   // 1. 拿4金币
   const popup = document.createElement('div');
@@ -2480,14 +2440,9 @@ function showNavigatorPanel() {
   coinInfo.style.display = 'none';
 
   // 虚拟玩家对象
-  const navigator = {
-    name: "洪漪妮",
-    role: "航海家",
-    roleKey: "navigator",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4),
-    built: []
-  };
+  const navigator = players.find(p => p.roleKey === 'navigator');
+  if (navigator.hand.length === 0) navigator.hand = generateDistrictDeck().slice(0, 4);
+  if (navigator.coins === 0) navigator.coins = 4;
 
   // 1. 拿4金币
   const popup = document.createElement('div');
@@ -2636,15 +2591,10 @@ function showArtistPanel() {
   coinInfo.style.display = 'none';
 
   // 虚拟玩家对象
-  const artist = {
-    name: "余鹏文",
-    role: "美术家",
-    roleKey: "artist",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4),
-    built: [],
-    beautified: [] // 存放被美化的地区索引
-  };
+  const artist = players.find(p => p.roleKey === 'artist');
+  if (artist.hand.length === 0) artist.hand = generateDistrictDeck().slice(0, 4);
+  if (artist.coins === 0) artist.coins = 4;
+  if (!artist.beautified) artist.beautified = [];
 
   // 1. 拿4金币
   const popup = document.createElement('div');
@@ -2829,14 +2779,10 @@ function showWizardPanel() {
   coinInfo.style.display = 'none';
 
   // 巫师虚拟玩家对象
-  const wizard = {
-    name: "李青政",
-    role: "巫师",
-    roleKey: "wizard",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4),
-    built: []
-  };
+ const wizard = players.find(p => p.roleKey === 'wizard');
+  // 如果第一次进入回合，初始化手牌和金币
+  if (wizard.hand.length === 0) wizard.hand = generateDistrictDeck().slice(0, 4);
+  if (wizard.coins === 0) wizard.coins = 4;
 
   // 1. 信息弹窗
   let html = `
@@ -3017,14 +2963,9 @@ function showDiplomatPanel() {
   coinInfo.style.display = 'none';
 
   // 外交官虚拟玩家对象
-  const diplomat = {
-    name: "赵方强",
-    role: "外交官",
-    roleKey: "diplomat",
-    coins: 4,
-    hand: generateDistrictDeck().slice(0, 4),
-    built: []
-  };
+  const diplomat = players.find(p => p.roleKey === 'diplomat');
+  if (diplomat.hand.length === 0) diplomat.hand = generateDistrictDeck().slice(0, 4);
+  if (diplomat.coins === 0) diplomat.coins = 4;
 
   // 信息弹窗
   let html = `
@@ -3228,6 +3169,7 @@ function showDiplomatBlessingVideo(onClose) {
 }
 
 function showAllPlayersPanel(players, onContinue) {
+  playSound('cover');
   // 计算分数并排序
   const results = players.map((p, idx) => {
     const districtScore = (p.built || []).reduce((sum, card) => sum + (card.score || 0), 0);
