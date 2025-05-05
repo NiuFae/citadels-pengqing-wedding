@@ -2965,8 +2965,11 @@ function diplomatSkillStep(diplomat) {
 
 function showDiplomatBlessing(diplomat) {
   showBlessingVideo('diplomat', '外交官：“要和平不要战争，在哪都是”', () => {
-    // 外交官行动结束
-    // 进入下一个角色
+    showAllPlayersPanel(players, () => {
+      showWarlordSkill(players, () => {
+        showGameResult();
+      });
+    });
   });
 }
 
@@ -3092,11 +3095,6 @@ function showWarlordSkill(players, onFinish) {
   };
 }
 
-showAllPlayersPanel(players, () => {
-  showWarlordSkill(players, () => {
-    showGameResult(); // 这里进入结算
-  });
-});
 
 function showGameResult() {
   // 计算分数
