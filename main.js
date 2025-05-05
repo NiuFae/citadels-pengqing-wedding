@@ -529,9 +529,9 @@ function showDealAnimation() {
     nextBtn.className = 'main-btn';
     // 优化按钮文案
     if (currentPlayerIdx === 0) {
-      nextBtn.textContent = '接下来，请 彭青 获得4枚金币';
+      nextBtn.textContent = '接下来，彭青（国王）将获得4枚金币';
     } else {
-      nextBtn.textContent = '接下来，请 吴璨 获得4枚金币';
+      nextBtn.textContent = '接下来，吴璨（皇后）将获得4枚金币';
     }
     nextBtn.onclick = () => {
       playSound('click');
@@ -747,7 +747,7 @@ function showAssassinPanel() {
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
         <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">刺客发动技能</div>
         <img src="assets/roles/assassin.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
-        <button class="main-btn" id="assassin-kill-btn">刺客选择刺杀【商人】</button>
+        <button class="main-btn" id="assassin-kill-btn">刺客选择刺杀商人</button>
       </div>
     `;
     document.getElementById('assassin-kill-btn').onclick = () => {
@@ -890,7 +890,7 @@ function showThiefPanel() {
     // 技能发动界面
     popup.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼选择盗取【国王】的所有金币</div>
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼选择盗取国王的所有金币</div>
         <img src="assets/roles/thief.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
         <button class="main-btn" id="thief-steal-btn">确定盗取</button>
       </div>
@@ -911,8 +911,8 @@ function showThiefPanel() {
             // 祝福视频关闭后，进入拿金币
             popup.innerHTML = `
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-                <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼可以选择拿取4枚金币</div>
-                <button class="main-btn" id="thief-get-coin-btn">盗贼选择拿取4枚金币</button>
+                <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">盗贼在本回合选择拿取金币</div>
+                <button class="main-btn" id="thief-get-coin-btn">盗贼拿取4枚金币</button>
               </div>
             `;
             document.getElementById('thief-get-coin-btn').onclick = () => {
@@ -1584,7 +1584,7 @@ function showBishopPanel() {
             popup.innerHTML = `
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
                 <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
-                  主教已建造${blueCount}个宗教地区，获得${bonus}枚金币奖励
+                  主教已建造${blueCount}个宗教地区（蓝色），获得${bonus}枚金币奖励
                 </div>
                 <button class="main-btn" id="bishop-end-btn">主教行动结束</button>
               </div>
@@ -2020,7 +2020,7 @@ function showWarlordPanel() {
       <div style="margin-bottom:10px;">
         <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
       </div>
-      <button class="main-btn" id="warlord-skill-btn" style="margin-top:10px;">军阀决定是否发动攻打技能</button>
+      <button class="main-btn" id="warlord-skill-btn" style="margin-top:10px;">军阀选择是否发动攻打技能</button>
     </div>
   `;
 
@@ -2127,7 +2127,7 @@ function showWarlordPanel() {
               popup.innerHTML = `
                 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
                   <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
-                    军阀已建造${redCount}个军事地区，获得${bonus}枚金币奖励
+                    军阀已建造${redCount}个军事地区（红色），获得${bonus}枚金币奖励
                   </div>
                   <button class="main-btn" id="warlord-end-btn">军阀行动结束</button>
                 </div>
@@ -2227,7 +2227,7 @@ function showQueenPanel() {
       <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
         由于皇后在物理意义上坐在国王旁边，<br>触发被动技能，皇后获得3枚金币
       </div>
-      <button class="main-btn" id="queen-passive-btn">获得3金币</button>
+      <button class="main-btn" id="queen-passive-btn">获得3枚金币</button>
     </div>
   `;
   playSound('magic');
@@ -2245,7 +2245,7 @@ function showQueenPanel() {
         <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
           皇后选择拿取4枚金币
         </div>
-        <button class="main-btn" id="queen-get-coin-btn">拿4金币</button>
+        <button class="main-btn" id="queen-get-coin-btn">获得4枚金币</button>
       </div>
     `;
 
@@ -2345,7 +2345,7 @@ function showAlchemistPanel() {
       <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
         炼金术士选择拿取4枚金币
       </div>
-      <button class="main-btn" id="alchemist-get-coin-btn">拿4金币</button>
+      <button class="main-btn" id="alchemist-get-coin-btn">获得4枚金币</button>
     </div>
   `;
   document.body.appendChild(popup);
@@ -2503,7 +2503,7 @@ function showNavigatorPanel() {
       <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
         航海家选择拿取4枚金币
       </div>
-      <button class="main-btn" id="navigator-get-coin-btn">拿4金币</button>
+      <button class="main-btn" id="navigator-get-coin-btn">获得4枚金币</button>
     </div>
   `;
   document.body.appendChild(popup);
@@ -2527,11 +2527,11 @@ function showNavigatorPanel() {
     // 3. 发动技能（再拿4金币，带角色图+音效）
     popup.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">航海家发动技能</div>
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;"></div>
         <img src="assets/roles/navigator.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
         <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
           航海家建造了${built.length}个地区，总花费${total}金币，剩余${navigator.coins}金币<br>
-          <br>发动技能：再拿取4枚金币
+          <br>发动技能：再次拿取4枚金币
         </div>
         <div style="display:flex;gap:10px;margin-bottom:12px;justify-content:center;">
           ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
@@ -2539,7 +2539,7 @@ function showNavigatorPanel() {
             <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
           </div>`).join('')}
         </div>
-        <button class="main-btn" id="navigator-skill-btn">再拿4金币</button>
+        <button class="main-btn" id="navigator-skill-btn">再次获得4枚金币</button>
       </div>
     `;
     playSound('magic');
@@ -2551,9 +2551,9 @@ function showNavigatorPanel() {
       popup.innerHTML = `
         <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
           <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
-            航海家发动技能，获得4金币，现在有${navigator.coins}金币
+            发动技能后，航海家获得4枚金币，现在有${navigator.coins}金币
           </div>
-          <button class="main-btn" id="navigator-bless-btn">航海家：“征途是星辰大海~”</button>
+          <button class="main-btn" id="navigator-bless-btn">航海家：“我们的征途是星辰大海！”</button>
         </div>
       `;
       document.getElementById('navigator-bless-btn').onclick = () => {
@@ -2660,7 +2660,7 @@ function showArtistPanel() {
       <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
         美术家选择拿取4枚金币
       </div>
-      <button class="main-btn" id="artist-get-coin-btn">拿4金币</button>
+      <button class="main-btn" id="artist-get-coin-btn">获得4枚金币</button>
     </div>
   `;
   document.body.appendChild(popup);
@@ -2692,7 +2692,7 @@ function showArtistPanel() {
 
     popup.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">美术家发动技能</div>
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;"></div>
         <img src="assets/roles/artist.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
         <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
           美术家建造了${built.length}个地区，总花费${total}金币，剩余${artist.coins}金币<br>
@@ -2810,7 +2810,7 @@ function showWizardSkill(wizard) {
   showRoleActionPopup({
     role: 'wizard',
     name: '李青政（巫师）',
-    text: `巫师发动技能，观看【航海家】的手牌并拿走一张`,
+    text: `巫师发动技能，观看航海家的手牌并拿走一张`,
     customContent: renderHandCards(navigator.hand),
     btn: '随机拿走一张',
     onConfirm: () => {
