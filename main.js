@@ -328,22 +328,20 @@ const districtNameMap = {
 };
 
 const players = [
-  {
-    name: "彭青",
-    role: "国王",
-    roleKey: "king",
-    coins: 4,
-    hand: [],
-    built: []
-  },
-  {
-    name: "吴璨",
-    role: "皇后",
-    roleKey: "queen",
-    coins: 4,
-    hand: [],
-    built: []
-  }
+  { name: "彭青",   role: "国王",     roleKey: "king",      coins: 4, hand: [], built: [] },
+  { name: "吴璨",   role: "皇后",     roleKey: "queen",     coins: 4, hand: [], built: [] },
+  { name: "牛斐",   role: "盗贼",     roleKey: "thief",     coins: 4, hand: [], built: [] },
+  { name: "ChatGPT",role: "刺客",     roleKey: "assassin",  coins: 4, hand: [], built: [] },
+  { name: "施佳颖", role: "魔法师",   roleKey: "magician",  coins: 4, hand: [], built: [] },
+  { name: "宋卓宣", role: "主教",     roleKey: "bishop",    coins: 4, hand: [], built: [] },
+  { name: "CursorAI",role:"商人",     roleKey: "merchant",  coins: 4, hand: [], built: [] },
+  { name: "李琪",   role: "建筑师",   roleKey: "architect", coins: 4, hand: [], built: [] },
+  { name: "焦傲然", role: "军阀",     roleKey: "warlord",   coins: 4, hand: [], built: [] },
+  { name: "刘泽仁", role: "炼金术士", roleKey: "alchemist", coins: 4, hand: [], built: [] },
+  { name: "洪漪妮", role: "航海家",   roleKey: "navigator", coins: 4, hand: [], built: [] },
+  { name: "余鹏文", role: "美术家",   roleKey: "artist",    coins: 4, hand: [], built: [], beautified: [] },
+  { name: "李青政", role: "巫师",     roleKey: "wizard",    coins: 4, hand: [], built: [] },
+  { name: "赵方强", role: "外交官",   roleKey: "diplomat",  coins: 4, hand: [], built: [] }
 ];
 
 function shuffle(arr) {
@@ -2771,6 +2769,332 @@ function showArtistBlessingVideo(onClose) {
   };
 }
 
+function showWizardPanel() {
+  playSound('magic');
+  // 巫师虚拟对象
+  const wizard = {
+    name: "李青政",
+    role: "巫师",
+    roleKey: "wizard",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4),
+    built: []
+  };
 
+  // 1. 拿取4金币
+  showRoleActionPopup({
+    role: 'wizard',
+    name: '李青政（巫师）',
+    text: '巫师选择拿取4枚金币',
+    btn: '确定',
+    onConfirm: () => {
+      wizard.coins += 4;
+      // 2. 自动建造
+      autoBuildDistricts(wizard, 8, () => {
+        // 3. 发动技能
+        showWizardSkill(wizard);
+      });
+    }
+  });
+}
 
+function showWizardSkill(wizard) {
+  playSound('magic');
+  // 假设航海家对象
+  const navigator = {
+    name: "洪漪妮",
+    role: "航海家",
+    hand: generateDistrictDeck().slice(0, 4)
+  };
+  // 展示航海家手牌
+  showRoleActionPopup({
+    role: 'wizard',
+    name: '李青政（巫师）',
+    text: `巫师发动技能，观看【航海家】的手牌并拿走一张`,
+    customContent: renderHandCards(navigator.hand),
+    btn: '随机拿走一张',
+    onConfirm: () => {
+      // 随机拿一张
+      const idx = Math.floor(Math.random() * navigator.hand.length);
+      const card = navigator.hand.splice(idx, 1)[0];
+      // 巫师金币足够则直接建造，否则加入手牌
+      if (wizard.coins >= card.cost) {
+        wizard.coins -= card.cost;
+        wizard.built.push(card);
+        showRoleActionPopup({
+          role: 'wizard',
+          name: '李青政（巫师）',
+          text: `巫师支付${card.cost}金币，立即建造了【${card.name}】`,
+          btn: '继续',
+          onConfirm: () => showWizardBlessing(wizard)
+        });
+      } else {
+        wizard.hand.push(card);
+        showRoleActionPopup({
+          role: 'wizard',
+          name: '李青政（巫师）',
+          text: `巫师拿走了【${card.name}】，但金币不足，暂时加入手牌`,
+          btn: '继续',
+          onConfirm: () => showWizardBlessing(wizard)
+        });
+      }
+    }
+  });
+}
+
+function showWizardBlessing(wizard) {
+  showBlessingVideo('wizard', '巫师：“魔法之手，洞察玄机。”', () => {
+    // 巫师行动结束
+    // 进入下一个角色
+  });
+}
+
+function showDiplomatPanel() {
+  playSound('magic');
+  const diplomat = {
+    name: "赵方强",
+    role: "外交官",
+    roleKey: "diplomat",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4),
+    built: []
+  };
+
+  // 1. 拿取4金币
+  showRoleActionPopup({
+    role: 'diplomat',
+    name: '赵方强（外交官）',
+    text: '外交官选择拿取4枚金币',
+    btn: '确定',
+    onConfirm: () => {
+      diplomat.coins += 4;
+      // 2. 自动建造
+      autoBuildDistricts(diplomat, 8, () => {
+        // 3. 获得红色地区金币
+        const redCount = diplomat.built.filter(card => card.color === 'red').length;
+        if (redCount > 0) {
+          diplomat.coins += redCount;
+          showRoleActionPopup({
+            role: 'diplomat',
+            name: '赵方强（外交官）',
+            text: `外交官拥有${redCount}个红色地区，获得${redCount}金币`,
+            btn: '继续',
+            onConfirm: () => diplomatSkillStep(diplomat)
+          });
+        } else {
+          diplomatSkillStep(diplomat);
+        }
+      });
+    }
+  });
+}
+
+function diplomatSkillStep(diplomat) {
+  // 假设有两个其他NPC玩家
+  const otherPlayers = [
+    {
+      name: "洪漪妮",
+      role: "航海家",
+      built: generateDistrictDeck().slice(0, 2)
+    },
+    {
+      name: "李青政",
+      role: "巫师",
+      built: generateDistrictDeck().slice(0, 2)
+    }
+  ];
+  // 只展示有已建造地区的玩家
+  const candidates = otherPlayers.filter(p => p.built.length > 0);
+  if (candidates.length === 0 || diplomat.built.length === 0) {
+    // 没有可交换的
+    showRoleActionPopup({
+      role: 'diplomat',
+      name: '赵方强（外交官）',
+      text: '没有可交换的地区，直接进入谈判',
+      btn: '进入谈判',
+      onConfirm: () => showDiplomatBlessing(diplomat)
+    });
+    return;
+  }
+
+  // 选择自己要交换出去的地区
+  showSelectCardPopup({
+    title: '选择你要交换出去的地区',
+    cards: diplomat.built,
+    onSelect: (myCard, myIdx) => {
+      // 选择目标玩家
+      showSelectPlayerPopup({
+        title: '选择目标玩家',
+        players: candidates,
+        onSelect: (targetPlayer, targetIdx) => {
+          // 选择目标玩家的地区
+          showSelectCardPopup({
+            title: `选择${targetPlayer.name}的一个地区进行交换`,
+            cards: targetPlayer.built,
+            onSelect: (targetCard, targetCardIdx) => {
+              // 计算差额
+              const diff = Math.max(0, targetCard.cost - myCard.cost);
+              if (diplomat.coins >= diff) {
+                diplomat.coins -= diff;
+                // 交换
+                diplomat.built[myIdx] = targetCard;
+                targetPlayer.built[targetCardIdx] = myCard;
+                showRoleActionPopup({
+                  role: 'diplomat',
+                  name: '赵方强（外交官）',
+                  text: `外交官支付${diff}金币，与${targetPlayer.name}交换了地区【${myCard.name}】⇄【${targetCard.name}】`,
+                  btn: '进入祝福',
+                  onConfirm: () => showDiplomatBlessing(diplomat)
+                });
+              } else {
+                showRoleActionPopup({
+                  role: 'diplomat',
+                  name: '赵方强（外交官）',
+                  text: `外交官金币不足，无法交换，直接进入谈判`,
+                  btn: '进入谈判',
+                  onConfirm: () => showDiplomatBlessing(diplomat)
+                });
+              }
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+function showDiplomatBlessing(diplomat) {
+  showBlessingVideo('diplomat', '外交官：“要和平不要战争，在哪都是”', () => {
+    // 外交官行动结束
+    // 进入下一个角色
+  });
+}
+
+function showAllPlayersPanel(players, onContinue) {
+  // players: 按照1~14顺序的所有角色对象数组
+  // onContinue: 展示完毕后点击“继续”按钮的回调
+
+  // 构建HTML
+  let html = `<div style="max-height:80vh;overflow-y:auto;padding:20px 0;">`;
+  players.forEach((p, idx) => {
+    html += `
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;background:#2d1c13;padding:12px 18px;border-radius:10px;">
+        <img src="assets/roles/${p.roleKey}.jpg" style="width:48px;height:48px;border-radius:8px;">
+        <div>
+          <div style="font-weight:bold;font-size:1.1rem;color:#ffe6b3;">${idx+1}. ${p.name}（${roleNameZh(p.roleKey)}）</div>
+          <div style="color:#ffe6b3;font-size:0.98rem;">
+            金币：${p.coins}　已建造：${p.built.length}　手牌：${p.hand.length}
+          </div>
+          <div style="margin-top:4px;">
+            ${p.built.map(card => `<img src="assets/districts/${card.img}" title="${card.name}" style="width:28px;height:38px;margin-right:2px;border-radius:4px;">`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  html += `</div>
+    <div style="text-align:center;margin-top:10px;">
+      <button class="main-btn" id="all-players-continue-btn">继续</button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.92)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#1a1a1a;padding:24px 18px 16px 18px;border-radius:16px;max-width:520px;width:96vw;box-shadow:0 2px 16px #000a;">
+      <div style="font-size:1.2rem;color:#ffe6b3;text-align:center;margin-bottom:18px;">所有角色的行动回合执行完毕</div>
+      ${html}
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  document.getElementById('all-players-continue-btn').onclick = () => {
+    document.body.removeChild(popup);
+    if (onContinue) onContinue();
+  };
+}
+
+function showWarlordSkill(players, onFinish) {
+  // 找到军阀对象
+  const warlord = players.find(p => p.roleKey === 'warlord');
+  // 不能破坏主教的地区
+  const bishop = players.find(p => p.roleKey === 'bishop');
+  // 收集所有可被破坏的地区
+  let bestTarget = null;
+  let bestValue = -Infinity;
+  players.forEach(p => {
+    if (p === warlord) return;
+    if (bishop && p === bishop) return; // 不能破坏主教
+    p.built.forEach((card, idx) => {
+      // 破坏价值=地区分数-破坏成本
+      const cost = Math.max(0, card.cost - 1);
+      if (warlord.coins >= cost) {
+        const value = card.cost - cost; // 你可以自定义更复杂的“最优解”算法
+        if (value > bestValue) {
+          bestValue = value;
+          bestTarget = { player: p, card, idx, cost };
+        }
+      }
+    });
+  });
+
+  // 弹窗
+  let html = `<div style="text-align:center;">
+    <img src="assets/roles/warlord.jpg" style="width:60px;height:60px;border-radius:10px;"><br>
+    <div style="font-size:1.1rem;color:#ffe6b3;margin:10px 0 8px 0;">军阀正在思考要攻打谁…</div>
+  `;
+  if (bestTarget) {
+    html += `
+      <div style="color:#ffe6b3;margin-bottom:8px;">
+        军阀决定攻打 <b>${bestTarget.player.name}</b> 的地区
+        <img src="assets/districts/${bestTarget.card.img}" title="${bestTarget.card.name}" style="width:32px;height:44px;vertical-align:middle;border-radius:4px;">
+        <b>${bestTarget.card.name}</b>，支付${bestTarget.cost}金币。
+      </div>
+      <button class="main-btn" id="warlord-skill-confirm-btn">执行破坏</button>
+    `;
+  } else {
+    html += `<div style="color:#ffe6b3;">没有可破坏的地区，军阀放弃技能。</div>
+      <button class="main-btn" id="warlord-skill-confirm-btn">继续</button>
+    `;
+  }
+  html += `</div>`;
+
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.92)';
+  popup.style.zIndex = '6000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#1a1a1a;padding:24px 18px 16px 18px;border-radius:16px;max-width:420px;width:92vw;box-shadow:0 2px 16px #000a;">
+      ${html}
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  document.getElementById('warlord-skill-confirm-btn').onclick = () => {
+    if (bestTarget) {
+      // 扣金币，移除地区
+      warlord.coins -= bestTarget.cost;
+      bestTarget.player.built.splice(bestTarget.idx, 1);
+    }
+    document.body.removeChild(popup);
+    if (onFinish) onFinish();
+  };
+}
+
+showAllPlayersPanel(players, () => {
+  showWarlordSkill(players, () => {
+    // 第一回合彻底结束，进入结算或下一流程
+  });
+});
 
