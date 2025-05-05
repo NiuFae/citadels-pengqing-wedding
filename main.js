@@ -2885,7 +2885,7 @@ function showWizardSkill(wizard, popup) {
     wizard.coins -= canBuild.score;
     wizard.built.push(canBuild);
     wizard.hand = wizard.hand.filter(c => c !== canBuild);
-    msg += `，随后又建造了【${districtNameMap[canBuild.name] || canBuild.name}】（花费${canBuild.score}金币）`;
+    msg += `，随后又建造了${districtNameMap[canBuild.name] || canBuild.name}（花费${canBuild.score}金币）`;
   }
 
   // 弹窗展示技能结果
