@@ -2772,6 +2772,55 @@ function startWizardTurn() {
   showWizardPanel();
 }
 
+function showRoleActionPopup({role, name, text, btn, onConfirm, customContent}) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">${name || ''}</div>
+      <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:18px;">${text || ''}</div>
+      ${customContent || ''}
+      <button class="main-btn" id="role-action-confirm-btn">${btn || '确定'}</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  document.getElementById('role-action-confirm-btn').onclick = () => {
+    popup.remove();
+    if (onConfirm) onConfirm();
+  };
+}
+
+function renderHandCards(hand) {
+  return `<div style="display:flex;gap:8px;justify-content:center;">
+    ${hand.map(card => `
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <img src="${card.img || ''}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;font-size:0.95rem;">${card.name || ''}</span>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function autoBuildDistricts(player, maxCost, callback) {
+  let total = 0, built = [];
+  for (let i = 0; i < player.hand.length; i++) {
+    if (built.length < 2 && total + (player.hand[i].score || 0) <= maxCost) {
+      built.push(player.hand[i]);
+      total += player.hand[i].score || 0;
+    }
+  }
+  player.built = built;
+  player.coins -= total;
+  player.hand = player.hand.filter(card => !built.includes(card));
+  if (callback) callback();
+}
+
 function showWizardPanel() {
   playSound('magic');
   // 巫师虚拟对象
