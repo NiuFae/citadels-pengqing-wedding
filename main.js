@@ -3333,15 +3333,39 @@ function showWarlordSkill(players, onFinish) {
   document.body.appendChild(popup);
 
   document.getElementById('warlord-skill-confirm-btn').onclick = () => {
+    // 解释原因页
     if (bestTarget) {
-      // 动画高亮被炸建筑
-      playSound('magic');
-      // 扣金币，移除地区
-      warlord.coins -= bestTarget.cost;
-      bestTarget.player.built.splice(bestTarget.idx, 1);
+      let reason = '';
+      // 解释逻辑
+      if (bestTarget.player === players[0]) {
+        reason = `军阀优先选择了当前排名第一的玩家（${bestTarget.player.name}），以阻止其获胜。`;
+      } else if (bestTarget.card.score >= 5) {
+        reason = `军阀选择了高分地区（${districtNameMap[bestTarget.card.name] || bestTarget.card.name}），因为高分建筑对总分影响最大。`;
+      } else if (bestTarget.cost === 0) {
+        reason = `军阀选择了价值1金币的地区，因为破坏是免费的，性价比最高。`;
+      } else {
+        reason = `军阀选择了该地区，是因为在可破坏目标中，这个地区的分数和破坏成本最优。`;
+      }
+  
+      popup.innerHTML = `
+        <div style="text-align:center;">
+          <img src="assets/roles/warlord.jpg" style="width:60px;height:60px;border-radius:10px;"><br>
+          <div style="font-size:1.1rem;color:#ffe6b3;margin:10px 0 8px 0;">军阀决策说明</div>
+          <div style="color:#ffe6b3;margin-bottom:12px;">${reason}</div>
+          <button class="main-btn" id="warlord-skill-exec-btn">执行破坏</button>
+        </div>
+      `;
+      document.getElementById('warlord-skill-exec-btn').onclick = () => {
+        playSound('magic');
+        warlord.coins -= bestTarget.cost;
+        bestTarget.player.built.splice(bestTarget.idx, 1);
+        document.body.removeChild(popup);
+        if (onFinish) onFinish();
+      };
+    } else {
+      document.body.removeChild(popup);
+      if (onFinish) onFinish();
     }
-    document.body.removeChild(popup);
-    if (onFinish) onFinish();
   };
 }
 
