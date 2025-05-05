@@ -2069,7 +2069,7 @@ function showWarlordPanel() {
     // 军阀决定暂不发动攻击技能
     popup.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">军阀发动技能</div>
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;"></div>
         <img src="assets/roles/warlord.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
         <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
           军阀决定，本轮暂不启动对他人建筑的攻打与破坏。<br>当第一回合临近结束时，再发动该技能。
