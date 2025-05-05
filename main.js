@@ -3290,7 +3290,10 @@ const topPlayer = rankedPlayers[0];
         <div style="text-align:center;">
           <img src="assets/roles/warlord.jpg" style="width:60px;height:60px;border-radius:10px;"><br>
           <div style="font-size:1.1rem;color:#ffe6b3;margin:10px 0 8px 0;">军阀决策说明</div>
-          <div style="color:#ffe6b3;margin-bottom:12px;">${reason}</div>
+          <div style="color:#ffe6b3;margin-bottom:12px;">
+            <b>军阀选择摧毁：${bestTarget.player.name}（${bestTarget.player.role}）的${districtNameMap[bestTarget.card.name] || bestTarget.card.name}</b><br>
+            <span style="font-size:0.98em;">${reason}</span>
+          </div>
           <button class="main-btn" id="warlord-skill-exec-btn">执行破坏</button>
         </div>
       `;
