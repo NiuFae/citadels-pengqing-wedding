@@ -3256,7 +3256,6 @@ const bestTarget = allTargets[0];
   
 
 if (bestTarget) {
-  // 详细解释
   let reason = `军阀对所有可破坏目标进行了评分，评分=建筑分数${bestTarget.isKing ? '+2（国王加权）' : ''}。<br>`;
   reason += '本轮所有可选目标如下：<ul style="text-align:left">';
   allTargets.forEach(t => {
@@ -3265,14 +3264,7 @@ if (bestTarget) {
   reason += '</ul>';
   reason += `军阀最终选择了评分最高的目标：<b>${bestTarget.player.name}（${bestTarget.player.role}）的【${districtNameMap[bestTarget.card.name] || bestTarget.card.name}】</b>。`;
 
-  // 弹窗
-  let html = `<div style="text-align:center;">
-    <img src="assets/roles/warlord.jpg" style="width:60px;height:60px;border-radius:10px;"><br>
-    <div style="font-size:1.1rem;color:#ffe6b3;margin:10px 0 8px 0;">军阀决策说明</div>
-    <div style="color:#ffe6b3;margin-bottom:12px;">${reason}</div>
-    <button class="main-btn" id="warlord-skill-exec-btn">执行破坏</button>
-  </div>`;
-
+  // 直接用 reason 变量，不用 html += ...
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
   popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
@@ -3283,7 +3275,12 @@ if (bestTarget) {
   popup.style.justifyContent = 'center';
   popup.innerHTML = `
     <div style="background:#1a1a1a;padding:24px 18px 16px 18px;border-radius:16px;max-width:420px;width:92vw;box-shadow:0 2px 16px #000a;">
-      ${html}
+      <div style="text-align:center;">
+        <img src="assets/roles/warlord.jpg" style="width:60px;height:60px;border-radius:10px;"><br>
+        <div style="font-size:1.1rem;color:#ffe6b3;margin:10px 0 8px 0;">军阀决策说明</div>
+        <div style="color:#ffe6b3;margin-bottom:12px;">${reason}</div>
+        <button class="main-btn" id="warlord-skill-exec-btn">执行破坏</button>
+      </div>
     </div>
   `;
   document.body.appendChild(popup);
@@ -3295,7 +3292,8 @@ if (bestTarget) {
     document.body.removeChild(popup);
     if (onFinish) onFinish();
   };
-} else {
+}
+  else {
   // 没有可炸目标的情况
   let html = `<div style="text-align:center;">
     <img src="assets/roles/warlord.jpg" style="width:60px;height:60px;border-radius:10px;"><br>
