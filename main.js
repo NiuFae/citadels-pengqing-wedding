@@ -3421,6 +3421,77 @@ function showGameResult() {
   `;
   document.body.appendChild(popup);
   playSound('success'); // <-- 新增，结算页面出现时播放胜利音效
+  // 结算弹窗出现后，播放胜利音效
+  
+  // 彩蛋弹窗
+  setTimeout(() => {
+    // 创建弹窗
+    const eggPopup = document.createElement('div');
+    eggPopup.style.position = 'fixed';
+    eggPopup.style.left = '0';
+    eggPopup.style.top = '0';
+    eggPopup.style.right = '0';
+    eggPopup.style.bottom = '0';
+    eggPopup.style.background = 'rgba(0,0,0,0.7)';
+    eggPopup.style.zIndex = '9999';
+    eggPopup.style.display = 'flex';
+    eggPopup.style.alignItems = 'center';
+    eggPopup.style.justifyContent = 'center';
+    eggPopup.innerHTML = `
+      <div id="egg-content" style="background:#fffbe6;padding:32px 24px 28px 24px;border-radius:18px;box-shadow:0 2px 24px #000a;max-width:420px;min-width:260px;position:relative;overflow:hidden;text-align:center;">
+        <div id="egg-bless" style="font-size:1.25rem;font-weight:bold;margin-bottom:18px;line-height:1.7;">
+          祝福玩到这里的彭青、吴璨新婚快乐，五四青年节快乐，永远年轻，永远幸福！<br>————爱来自鸽王群
+        </div>
+        <button id="egg-close" class="main-btn" style="margin:10px 0 0 0;">关闭</button>
+        <div id="egg-stars"></div>
+      </div>
+    `;
+    document.body.appendChild(eggPopup);
+  
+    // 彩色闪烁动画
+    const colors = ['#ff4d4f','#ffd700','#52c41a','#1890ff','#ff69b4','#ff7f50','#a020f0','#ffb347'];
+    let colorIdx = 0;
+    setInterval(() => {
+      const bless = document.getElementById('egg-bless');
+      if (bless) {
+        bless.style.color = colors[colorIdx % colors.length];
+        bless.style.textShadow = `0 0 8px ${colors[(colorIdx+1)%colors.length]}88`;
+        colorIdx++;
+      }
+    }, 400);
+  
+    // 星星/花朵/气球动画
+    const icons = [
+      '⭐','🌸','🎈','✨','💐','🎉','🌟','🎊','🌻','🎀','🪁','🦢'
+    ];
+    function spawnIcon() {
+      const icon = document.createElement('span');
+      icon.textContent = icons[Math.floor(Math.random()*icons.length)];
+      icon.style.position = 'absolute';
+      icon.style.left = Math.random()*90 + '%';
+      icon.style.top = Math.random()*80 + '%';
+      icon.style.fontSize = (Math.random()*18+22)+'px';
+      icon.style.opacity = Math.random()*0.5+0.5;
+      icon.style.transition = 'all 2.5s linear';
+      icon.style.pointerEvents = 'none';
+      document.getElementById('egg-content').appendChild(icon);
+      setTimeout(() => {
+        icon.style.top = (parseFloat(icon.style.top)+Math.random()*-30-10)+'%';
+        icon.style.opacity = 0;
+      }, 100);
+      setTimeout(() => {
+        icon.remove();
+      }, 2600);
+    }
+    let iconTimer = setInterval(spawnIcon, 350);
+  
+    // 关闭按钮
+    document.getElementById('egg-close').onclick = () => {
+      clearInterval(iconTimer);
+      eggPopup.remove();
+      showEggOptions();
+    };
+  }, 800);
 
   // 动画：皇冠飞到第一名
   setTimeout(() => {
@@ -3449,3 +3520,74 @@ function showGameResult() {
 }
 
 
+function showEggOptions() {
+  // 创建按钮弹窗
+  const optPopup = document.createElement('div');
+  optPopup.style.position = 'fixed';
+  optPopup.style.left = '0';
+  optPopup.style.top = '0';
+  optPopup.style.right = '0';
+  optPopup.style.bottom = '0';
+  optPopup.style.background = 'rgba(0,0,0,0.2)';
+  optPopup.style.zIndex = '9999';
+  optPopup.style.display = 'flex';
+  optPopup.style.alignItems = 'center';
+  optPopup.style.justifyContent = 'center';
+  optPopup.innerHTML = `
+    <div style="background:#fffbe6;padding:28px 18px 18px 18px;border-radius:16px;box-shadow:0 2px 16px #000a;max-width:340px;text-align:center;">
+      <div style="font-size:1.15rem;font-weight:bold;margin-bottom:18px;">请选择你的下一步：</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <button class="main-btn" id="egg-restart">再玩一次</button>
+        <button class="main-btn" id="egg-twice" style="background:#ffb347;color:#fff;">再玩两次</button>
+        <button class="main-btn" id="egg-gugu" style="background:#a0d911;color:#fff;">咕咕咕</button>
+        <button class="main-btn" id="egg-queen" style="background:#ff69b4;color:#fff;">亲爱的皇后</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(optPopup);
+
+  // 按钮事件
+  document.getElementById('egg-restart').onclick = () => {
+    location.reload();
+  };
+  document.getElementById('egg-twice').onclick = () => {
+    optPopup.remove();
+    showEggText('此处待开垦');
+  };
+  document.getElementById('egg-gugu').onclick = () => {
+    optPopup.remove();
+    showEggText('希望鸽子们不管在哪，在做什么，都要照顾好自己，好好吃饭好好睡觉，每一天都认认真真、开开心心地生活！期待线下不鸽的一天~！');
+  };
+  document.getElementById('egg-queen').onclick = () => {
+    optPopup.remove();
+    showEggText('尊敬的皇后殿下：在最开始设想角色卡时，我们就觉得，“国王”和“皇后”角色卡很适合由你们抽取。在游戏里，皇后和国王是彼此身边最温暖的陪伴，在现实中，你们也在互相守护、共同成长。不过在模拟游戏分支走向时，我发现皇后的技能很被动，没有办法主动吃钱，可能游戏的体验不是很好。在富饶之城，皇后没有主动技能，离开富饶之城，皇后可以成为任何人。祝吴璨、彭青在人生旅途上相互依偎，建造属于你们的城堡，主宰自己的王国~！');
+  };
+}
+
+
+function showEggText(text) {
+  const textPopup = document.createElement('div');
+  textPopup.style.position = 'fixed';
+  textPopup.style.left = '0';
+  textPopup.style.top = '0';
+  textPopup.style.right = '0';
+  textPopup.style.bottom = '0';
+  textPopup.style.background = 'rgba(0,0,0,0.7)';
+  textPopup.style.zIndex = '9999';
+  textPopup.style.display = 'flex';
+  textPopup.style.alignItems = 'center';
+  textPopup.style.justifyContent = 'center';
+  textPopup.innerHTML = `
+    <div style="background:#fffbe6;padding:32px 24px 28px 24px;border-radius:18px;box-shadow:0 2px 24px #000a;max-width:420px;min-width:260px;position:relative;overflow:hidden;text-align:center;">
+      <div style="font-size:1.18rem;font-weight:bold;margin-bottom:18px;line-height:1.7;color:#ff4d4f;text-shadow:0 0 8px #ffd70088;">
+        ${text}
+      </div>
+      <button class="main-btn" id="egg-back" style="margin:10px 0 0 0;">返回结算</button>
+    </div>
+  `;
+  document.body.appendChild(textPopup);
+  document.getElementById('egg-back').onclick = () => {
+    textPopup.remove();
+    showEggOptions();
+  };
+}
