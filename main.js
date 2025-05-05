@@ -2925,10 +2925,10 @@ function showWizardSkill(wizard, popup) {
   if (wizard.coins >= card.score) {
     wizard.coins -= card.score;
     wizard.built.push(card);
-    msg = `巫师从【${targetPlayer.name}】手牌中拿走了【${districtNameMap[card.name] || card.name}】，并立即建造（花费${card.score}金币）`;
+    msg = `巫师从【${targetPlayer.name}（${targetPlayer.role}）】手牌中拿走了【${districtNameMap[card.name] || card.name}】，并立即建造（花费${card.score}金币）`;
   } else {
     wizard.hand.push(card);
-    msg = `巫师从【${targetPlayer.name}】手牌中拿走了【${districtNameMap[card.name] || card.name}】，金币不足，加入手牌`;
+    msg = `巫师从【${targetPlayer.name}（${targetPlayer.role}）】手牌中拿走了【${districtNameMap[card.name] || card.name}】，金币不足，加入手牌`;
   }
   // 目标玩家手牌移除
   targetPlayer.hand.splice(cardIdx, 1);
@@ -3003,6 +3003,10 @@ function showWizardBlessingVideo(onClose) {
       if (onClose) onClose();
     };
   };
+}
+
+function startDiplomatTurn() {
+  showDiplomatPanel();
 }
 
 function showDiplomatPanel() {
