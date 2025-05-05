@@ -2823,7 +2823,12 @@ function autoBuildDistricts(player, maxCost, callback) {
 
 function showWizardPanel() {
   playSound('magic');
-  // 巫师虚拟对象
+  cardArea.innerHTML = '';
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 巫师虚拟玩家对象
   const wizard = {
     name: "李青政",
     role: "巫师",
@@ -2833,77 +2838,181 @@ function showWizardPanel() {
     built: []
   };
 
-  // 1. 拿取4金币
-  showRoleActionPopup({
-    role: 'wizard',
-    name: '李青政（巫师）',
-    text: '巫师选择拿取4枚金币',
-    btn: '确定',
-    onConfirm: () => {
-      wizard.coins += 4;
-      // 2. 自动建造
-      autoBuildDistricts(wizard, 8, () => {
-        // 3. 发动技能
-        showWizardSkill(wizard);
-      });
-    }
-  });
-}
+  // 1. 信息弹窗
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/wizard.jpg" alt="巫师" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">李青政（巫师）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('wizard')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">×${wizard.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="wizard-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${wizard.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <button class="main-btn" id="wizard-get-coin-btn" style="margin-top:10px;">巫师选择拿取4枚金币</button>
+    </div>
+  `;
 
-function showWizardSkill(wizard) {
-  playSound('magic');
-  // 假设航海家对象
-  const navigator = {
-    name: "洪漪妮",
-    role: "航海家",
-    hand: generateDistrictDeck().slice(0, 4)
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 禁止查看巫师手牌
+  setTimeout(() => {
+    const handArea = document.getElementById('wizard-hand-area');
+    if (handArea) {
+      handArea.onclick = () => {
+        const tip = document.createElement('div');
+        tip.style.position = 'fixed';
+        tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+        tip.style.background = 'rgba(0,0,0,0.85)';
+        tip.style.zIndex = '6000';
+        tip.style.display = 'flex';
+        tip.style.alignItems = 'center';
+        tip.style.justifyContent = 'center';
+        tip.innerHTML = `
+          <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+            <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+            <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+          </div>
+        `;
+        document.body.appendChild(tip);
+        playSound('notification');
+      };
+    }
+  }, 0);
+
+  // 拿金币按钮
+  document.getElementById('wizard-get-coin-btn').onclick = () => {
+    playSound('coin');
+    wizard.coins += 4;
+    // 技能自动执行
+    setTimeout(() => {
+      showWizardSkill(wizard, popup);
+    }, 600);
   };
-  // 展示航海家手牌
-  showRoleActionPopup({
-    role: 'wizard',
-    name: '李青政（巫师）',
-    text: `巫师发动技能，观看航海家的手牌并拿走一张`,
-    customContent: renderHandCards(navigator.hand),
-    btn: '随机拿走一张',
-    onConfirm: () => {
-      // 随机拿一张
-      const idx = Math.floor(Math.random() * navigator.hand.length);
-      const card = navigator.hand.splice(idx, 1)[0];
-      // 巫师金币足够则直接建造，否则加入手牌
-      if (wizard.coins >= card.cost) {
-        wizard.coins -= card.cost;
-        wizard.built.push(card);
-        showRoleActionPopup({
-          role: 'wizard',
-          name: '李青政（巫师）',
-          text: `巫师支付${card.cost}金币，立即建造了【${card.name}】`,
-          btn: '继续',
-          onConfirm: () => showWizardBlessing(wizard)
-        });
-      } else {
-        wizard.hand.push(card);
-        showRoleActionPopup({
-          role: 'wizard',
-          name: '李青政（巫师）',
-          text: `巫师拿走了【${card.name}】，但金币不足，暂时加入手牌`,
-          btn: '继续',
-          onConfirm: () => showWizardBlessing(wizard)
-        });
-      }
-    }
-  });
 }
 
-function showWizardBlessing(wizard) {
-  showBlessingVideo('wizard', '巫师：“魔法之手，洞察玄机。”', () => {
-    // 巫师行动结束
-    // 进入下一个角色
-    startDiplomatTurn();
-  });
+function showWizardSkill(wizard, popup) {
+  playSound('magic');
+  // 选择目标玩家（手牌最多的，多个则随机）
+  const candidates = players.filter(p => p.roleKey !== 'wizard' && p.hand && p.hand.length > 0);
+  let maxHand = Math.max(...candidates.map(p => p.hand.length));
+  let targets = candidates.filter(p => p.hand.length === maxHand);
+  let targetPlayer = targets[Math.floor(Math.random() * targets.length)];
+
+  // 随机拿走一张卡牌
+  let cardIdx = Math.floor(Math.random() * targetPlayer.hand.length);
+  let card = targetPlayer.hand[cardIdx];
+
+  // 立即建造 or 加入手牌
+  let msg = '';
+  if (wizard.coins >= card.score) {
+    wizard.coins -= card.score;
+    wizard.built.push(card);
+    msg = `巫师从【${targetPlayer.name}】手牌中拿走了【${districtNameMap[card.name] || card.name}】，并立即建造（花费${card.score}金币）`;
+  } else {
+    wizard.hand.push(card);
+    msg = `巫师从【${targetPlayer.name}】手牌中拿走了【${districtNameMap[card.name] || card.name}】，金币不足，加入手牌`;
+  }
+  // 目标玩家手牌移除
+  targetPlayer.hand.splice(cardIdx, 1);
+
+  // 巫师还可以正常建造一个地区（自动建造）
+  let canBuild = wizard.hand.find(card => wizard.coins >= card.score);
+  if (canBuild) {
+    wizard.coins -= canBuild.score;
+    wizard.built.push(canBuild);
+    wizard.hand = wizard.hand.filter(c => c !== canBuild);
+    msg += `，随后又建造了【${districtNameMap[canBuild.name] || canBuild.name}】（花费${canBuild.score}金币）`;
+  }
+
+  // 弹窗展示技能结果
+  popup.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">${msg}</div>
+      <img src="assets/roles/wizard.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
+      <button class="main-btn" id="wizard-bless-btn">进入祝福视频</button>
+    </div>
+  `;
+  document.getElementById('wizard-bless-btn').onclick = () => {
+    showWizardBlessingVideo(() => {
+      if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
+      // 巫师行动结束，进入下一个角色
+      startDiplomatTurn();
+    });
+  };
+}
+
+function showWizardBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="wizard-bless-video" src="assets/videos/wizard.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="wizard-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="wizard-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('wizard-bless-video');
+  document.getElementById('wizard-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('wizard-bless-close').onclick = () => {
+    if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="wizard-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="wizard-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('wizard-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('wizard-bless-close2').onclick = () => {
+      if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
+      if (onClose) onClose();
+    };
+  };
 }
 
 function showDiplomatPanel() {
   playSound('magic');
+  cardArea.innerHTML = '';
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 外交官虚拟玩家对象
   const diplomat = {
     name: "赵方强",
     role: "外交官",
@@ -2913,136 +3022,250 @@ function showDiplomatPanel() {
     built: []
   };
 
-  // 1. 拿取4金币
-  showRoleActionPopup({
-    role: 'diplomat',
-    name: '赵方强（外交官）',
-    text: '外交官选择拿取4枚金币',
-    btn: '确定',
-    onConfirm: () => {
-      diplomat.coins += 4;
-      // 2. 自动建造
-      autoBuildDistricts(diplomat, 8, () => {
-        // 3. 获得红色地区金币
-        const redCount = diplomat.built.filter(card => card.color === 'red').length;
-        if (redCount > 0) {
-          diplomat.coins += redCount;
-          showRoleActionPopup({
-            role: 'diplomat',
-            name: '赵方强（外交官）',
-            text: `外交官拥有${redCount}个红色地区，获得${redCount}金币`,
-            btn: '继续',
-            onConfirm: () => diplomatSkillStep(diplomat)
-          });
-        } else {
-          diplomatSkillStep(diplomat);
-        }
-      });
+  // 信息弹窗
+  let html = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img class="player-role-img" src="assets/roles/diplomat.jpg" alt="外交官" style="height:60px;width:60px;">
+        <span style="font-weight:bold;font-size:1.2rem;color:#ffe6b3;">赵方强（外交官）</span>
+        <button class="skill-btn" title="查看技能" style="margin-left:6px;width:28px;height:28px;font-size:1.2rem;border-radius:50%;background:#ffe6b3;color:#3b2c23;border:none;cursor:pointer;" onclick="showSkillPopup('diplomat')">？</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <img src="assets/others/coin.jpg" style="width:22px;vertical-align:middle;"> <span style="color:#ffe6b3;">×${diplomat.coins}</span>
+      </div>
+      <div style="margin-bottom:6px;cursor:pointer;" title="点击查看手牌" id="diplomat-hand-area">
+        <img src="assets/others/card_back.jpg" style="width:28px;height:40px;vertical-align:middle;border-radius:4px;box-shadow:0 1px 4px #0006;">
+        <span style="color:#ffe6b3;">×${diplomat.hand.length}</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span style="color:#aaa;font-size:0.95rem;">（暂无已建造地区）</span>
+      </div>
+      <button class="main-btn" id="diplomat-get-coin-btn" style="margin-top:10px;">外交官选择拿取4枚金币</button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  // 禁止查看外交官手牌
+  setTimeout(() => {
+    const handArea = document.getElementById('diplomat-hand-area');
+    if (handArea) {
+      handArea.onclick = () => {
+        const tip = document.createElement('div');
+        tip.style.position = 'fixed';
+        tip.style.left = '0'; tip.style.top = '0'; tip.style.right = '0'; tip.style.bottom = '0';
+        tip.style.background = 'rgba(0,0,0,0.85)';
+        tip.style.zIndex = '6000';
+        tip.style.display = 'flex';
+        tip.style.alignItems = 'center';
+        tip.style.justifyContent = 'center';
+        tip.innerHTML = `
+          <div style="background:#2d1c13;padding:18px 16px 12px 16px;border-radius:12px;max-width:320px;box-shadow:0 2px 16px #000a;text-align:center;">
+            <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:12px;">没有特殊技能的您不能查看他人卡牌哦~</div>
+            <button class="main-btn" onclick="this.parentNode.parentNode.remove()">关闭</button>
+          </div>
+        `;
+        document.body.appendChild(tip);
+        playSound('notification');
+      };
     }
-  });
+  }, 0);
+
+  // 拿金币按钮
+  document.getElementById('diplomat-get-coin-btn').onclick = () => {
+    playSound('coin');
+    diplomat.coins += 4;
+    // 自动建造1~2个地区，总花费≤8金币
+    setTimeout(() => {
+      let total = 0, built = [];
+      for (let i = 0; i < diplomat.hand.length; i++) {
+        if (built.length < 2 && total + diplomat.hand[i].score <= 8 && diplomat.coins >= diplomat.hand[i].score) {
+          built.push(diplomat.hand[i]);
+          total += diplomat.hand[i].score;
+          diplomat.coins -= diplomat.hand[i].score;
+        }
+      }
+      diplomat.built = built;
+      diplomat.hand = diplomat.hand.filter(card => !built.includes(card));
+      showDiplomatRedBonus(diplomat, popup, total, built);
+    }, 600);
+  };
 }
 
-function diplomatSkillStep(diplomat) {
-  // 假设有两个其他NPC玩家
-  const otherPlayers = [
-    {
-      name: "洪漪妮",
-      role: "航海家",
-      built: generateDistrictDeck().slice(0, 2)
-    },
-    {
-      name: "李青政",
-      role: "巫师",
-      built: generateDistrictDeck().slice(0, 2)
+function showDiplomatRedBonus(diplomat, popup, buildTotal, built) {
+  // 统计红色（军事）地区数量
+  const redCount = diplomat.built.filter(card => card.color === 'red').length;
+  let bonus = redCount;
+  diplomat.coins += bonus;
+
+  let buildMsg = built && built.length > 0
+    ? `外交官建造了${built.length}个地区（总花费${buildTotal}金币），`
+    : '外交官本回合未建造地区，';
+
+  popup.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">
+        ${buildMsg}获得${bonus}枚红色地区奖励金币
+      </div>
+      <img src="assets/roles/diplomat.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
+      <button class="main-btn" id="diplomat-skill-btn">发动技能</button>
+    </div>
+  `;
+  document.getElementById('diplomat-skill-btn').onclick = () => {
+    showDiplomatSkill(diplomat, popup);
+  };
+}
+
+function showDiplomatSkill(diplomat, popup) {
+  playSound('magic');
+  // 技能：自动选择自己和其他玩家各一个地区（优先高分），如果金币足够则交换（支付差额），否则放弃技能
+  let msg = '';
+  // 只考虑有已建造地区的玩家
+  const candidates = players.filter(p => p.roleKey !== 'diplomat' && p.built && p.built.length > 0);
+  if (diplomat.built.length > 0 && candidates.length > 0) {
+    // 自己最高分的地区
+    let myIdx = diplomat.built.reduce((maxIdx, card, idx, arr) => card.score > arr[maxIdx].score ? idx : maxIdx, 0);
+    let myCard = diplomat.built[myIdx];
+    // 目标玩家及其最高分地区
+    let targetPlayer = candidates[Math.floor(Math.random() * candidates.length)];
+    let targetIdx = targetPlayer.built.reduce((maxIdx, card, idx, arr) => card.score > arr[maxIdx].score ? idx : maxIdx, 0);
+    let targetCard = targetPlayer.built[targetIdx];
+    // 计算差额
+    let diff = Math.max(0, targetCard.score - myCard.score);
+    if (diplomat.coins >= diff) {
+      diplomat.coins -= diff;
+      // 交换
+      diplomat.built[myIdx] = targetCard;
+      targetPlayer.built[targetIdx] = myCard;
+      msg = `外交官用【${districtNameMap[myCard.name] || myCard.name}】与【${targetPlayer.name}】的【${districtNameMap[targetCard.name] || targetCard.name}】交换，支付${diff}金币`;
+    } else {
+      msg = `外交官金币不足，无法发动技能交换地区`;
     }
-  ];
-  // 只展示有已建造地区的玩家
-  const candidates = otherPlayers.filter(p => p.built.length > 0);
-  if (candidates.length === 0 || diplomat.built.length === 0) {
-    // 没有可交换的
-    showRoleActionPopup({
-      role: 'diplomat',
-      name: '赵方强（外交官）',
-      text: '没有可交换的地区，直接进入谈判',
-      btn: '进入谈判',
-      onConfirm: () => showDiplomatBlessing(diplomat)
-    });
-    return;
+  } else {
+    msg = `没有可交换的地区，外交官放弃技能`;
   }
 
-  // 选择自己要交换出去的地区
-  showSelectCardPopup({
-    title: '选择你要交换出去的地区',
-    cards: diplomat.built,
-    onSelect: (myCard, myIdx) => {
-      // 选择目标玩家
-      showSelectPlayerPopup({
-        title: '选择目标玩家',
-        players: candidates,
-        onSelect: (targetPlayer, targetIdx) => {
-          // 选择目标玩家的地区
-          showSelectCardPopup({
-            title: `选择${targetPlayer.name}的一个地区进行交换`,
-            cards: targetPlayer.built,
-            onSelect: (targetCard, targetCardIdx) => {
-              // 计算差额
-              const diff = Math.max(0, targetCard.cost - myCard.cost);
-              if (diplomat.coins >= diff) {
-                diplomat.coins -= diff;
-                // 交换
-                diplomat.built[myIdx] = targetCard;
-                targetPlayer.built[targetCardIdx] = myCard;
-                showRoleActionPopup({
-                  role: 'diplomat',
-                  name: '赵方强（外交官）',
-                  text: `外交官支付${diff}金币，与${targetPlayer.name}交换了地区【${myCard.name}】⇄【${targetCard.name}】`,
-                  btn: '进入祝福',
-                  onConfirm: () => showDiplomatBlessing(diplomat)
-                });
-              } else {
-                showRoleActionPopup({
-                  role: 'diplomat',
-                  name: '赵方强（外交官）',
-                  text: `外交官金币不足，无法交换，直接进入谈判`,
-                  btn: '进入谈判',
-                  onConfirm: () => showDiplomatBlessing(diplomat)
-                });
-              }
-            }
-          });
-        }
-      });
-    }
-  });
-}
-
-function showDiplomatBlessing(diplomat) {
-  showBlessingVideo('diplomat', '外交官：“要和平不要战争，在哪都是”', () => {
-    showAllPlayersPanel(players, () => {
-      showWarlordSkill(players, () => {
-        showGameResult();
+  // 弹窗展示技能结果
+  popup.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">${msg}</div>
+      <img src="assets/roles/diplomat.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
+      <button class="main-btn" id="diplomat-bless-btn">进入祝福视频</button>
+    </div>
+  `;
+  document.getElementById('diplomat-bless-btn').onclick = () => {
+    showDiplomatBlessingVideo(() => {
+      if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
+      // 外交官行动结束，进入下一个角色或结算
+      // 你可以在这里跳转到下一个角色，如 showAllPlayersPanel() 或 showGameResult()
+      showAllPlayersPanel(players, () => {
+        showWarlordSkill(players, () => {
+          showGameResult();
+        });
       });
     });
-  });
+  };
+}
+
+function showDiplomatBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="diplomat-bless-video" src="assets/videos/diplomat.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="diplomat-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="diplomat-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('diplomat-bless-video');
+  document.getElementById('diplomat-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('diplomat-bless-close').onclick = () => {
+    if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="diplomat-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="diplomat-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('diplomat-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('diplomat-bless-close2').onclick = () => {
+      if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
+      if (onClose) onClose();
+    };
+  };
 }
 
 function showAllPlayersPanel(players, onContinue) {
-  // players: 按照1~14顺序的所有角色对象数组
-  // onContinue: 展示完毕后点击“继续”按钮的回调
+  // 计算分数并排序
+  const results = players.map((p, idx) => {
+    const districtScore = (p.built || []).reduce((sum, card) => sum + (card.score || 0), 0);
+    return {
+      idx,
+      name: p.name,
+      role: p.role,
+      roleKey: p.roleKey,
+      coins: p.coins || 0,
+      built: p.built || [],
+      hand: p.hand || [],
+      score: districtScore + (p.coins || 0)
+    };
+  });
+  results.sort((a, b) => b.score - a.score);
 
   // 构建HTML
-  let html = `<div style="max-height:80vh;overflow-y:auto;padding:20px 0;">`;
-  players.forEach((p, idx) => {
+  let html = `<div style="max-height:70vh;overflow-y:auto;padding:20px 0;">`;
+  results.forEach((p, rank) => {
     html += `
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;background:#2d1c13;padding:12px 18px;border-radius:10px;">
-        <img src="assets/roles/${p.roleKey}.jpg" style="width:48px;height:48px;border-radius:8px;">
-        <div>
-          <div style="font-weight:bold;font-size:1.1rem;color:#ffe6b3;">${idx+1}. ${p.name}（${roleNameZh(p.roleKey)}）</div>
-          <div style="color:#ffe6b3;font-size:0.98rem;">
-            金币：${p.coins}　已建造：${p.built.length}　手牌：${p.hand.length}
+      <div class="player-summary-block" style="
+        display:flex;align-items:center;gap:18px;margin-bottom:18px;
+        background:${rank === 0 ? '#3b2c23' : '#2d1c13'};
+        padding:14px 18px;border-radius:12px;box-shadow:0 2px 8px #0005;
+        position:relative;${rank === 0 ? 'border:2.5px solid #ffe6b3;' : ''}
+      ">
+        <img src="assets/roles/${p.roleKey}.jpg" style="width:54px;height:54px;border-radius:10px;box-shadow:0 1px 4px #0006;">
+        <div style="flex:1;">
+          <div style="font-weight:bold;font-size:1.15rem;color:#ffe6b3;">
+            ${rank + 1}. ${p.name}（${p.role}）
+            ${rank === 0 ? '<span id="crown-placeholder" style="display:inline-block;width:32px;height:32px;vertical-align:middle;"></span>' : ''}
           </div>
-          <div style="margin-top:4px;">
-            ${p.built.map(card => `<img src="assets/districts/${card.img}" title="${card.name}" style="width:28px;height:38px;margin-right:2px;border-radius:4px;">`).join('')}
+          <div style="color:#ffe6b3;font-size:1.05rem;">
+            金币：${p.coins}　已建造：${p.built.length}　手牌：${p.hand.length}　总分：<b style="color:#ffd700;">${p.score}</b>
+          </div>
+          <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;">
+            ${p.built.map(card => `
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <img src="${card.img}" title="${districtNameMap[card.name] || card.name}" style="width:32px;height:40px;border-radius:4px;box-shadow:0 1px 4px #0006;">
+                <span style="color:#ffe6b3;font-size:0.92rem;">${districtNameMap[card.name] || card.name}</span>
+              </div>
+            `).join('')}
           </div>
         </div>
       </div>
@@ -3050,7 +3273,7 @@ function showAllPlayersPanel(players, onContinue) {
   });
   html += `</div>
     <div style="text-align:center;margin-top:10px;">
-      <button class="main-btn" id="all-players-continue-btn">继续</button>
+      <button class="main-btn" id="all-players-continue-btn" style="font-size:1.15rem;padding:12px 38px;">继续</button>
     </div>
   `;
 
@@ -3064,12 +3287,37 @@ function showAllPlayersPanel(players, onContinue) {
   popup.style.alignItems = 'center';
   popup.style.justifyContent = 'center';
   popup.innerHTML = `
-    <div style="background:#1a1a1a;padding:24px 18px 16px 18px;border-radius:16px;max-width:520px;width:96vw;box-shadow:0 2px 16px #000a;">
-      <div style="font-size:1.2rem;color:#ffe6b3;text-align:center;margin-bottom:18px;">所有角色的行动回合执行完毕</div>
+    <div style="background:#1a1a1a;padding:24px 18px 16px 18px;border-radius:16px;max-width:540px;width:98vw;box-shadow:0 2px 16px #000a;">
+      <div style="font-size:1.3rem;color:#ffe6b3;text-align:center;margin-bottom:18px;">所有角色行动回合已结束<br>当前得分排名</div>
       ${html}
     </div>
   `;
   document.body.appendChild(popup);
+
+  // 动画准备：皇冠飞入
+  setTimeout(() => {
+    const placeholder = document.getElementById('crown-placeholder');
+    if (placeholder) {
+      const crown = document.createElement('img');
+      crown.src = 'assets/others/crown.jpg';
+      crown.className = 'crown-img';
+      crown.style.width = '32px';
+      crown.style.height = '32px';
+      crown.style.marginLeft = '2px';
+      crown.style.verticalAlign = 'middle';
+      crown.style.position = 'relative';
+      crown.style.top = '-8px';
+      crown.style.left = '2px';
+      crown.style.filter = 'drop-shadow(0 2px 6px #ffe6b3cc)';
+      crown.style.opacity = '0';
+      placeholder.appendChild(crown);
+      setTimeout(() => {
+        crown.style.transition = 'opacity 0.8s, transform 0.8s cubic-bezier(.4,2,.6,1)';
+        crown.style.opacity = '1';
+        crown.style.transform = 'scale(1.2) rotate(-10deg)';
+      }, 200);
+    }
+  }, 400);
 
   document.getElementById('all-players-continue-btn').onclick = () => {
     document.body.removeChild(popup);
@@ -3090,9 +3338,10 @@ function showWarlordSkill(players, onFinish) {
     if (bishop && p === bishop) return; // 不能破坏主教
     p.built.forEach((card, idx) => {
       // 破坏价值=地区分数-破坏成本
-      const cost = Math.max(0, card.cost - 1);
+      const cost = Math.max(0, card.score - 1);
       if (warlord.coins >= cost) {
-        const value = card.cost - cost; // 你可以自定义更复杂的“最优解”算法
+        // 优先炸第一名的高分建筑
+        const value = card.score + (p === players[0] ? 2 : 0); // 炸第一名加权
         if (value > bestValue) {
           bestValue = value;
           bestTarget = { player: p, card, idx, cost };
@@ -3110,8 +3359,8 @@ function showWarlordSkill(players, onFinish) {
     html += `
       <div style="color:#ffe6b3;margin-bottom:8px;">
         军阀决定攻打 <b>${bestTarget.player.name}</b> 的地区
-        <img src="assets/districts/${bestTarget.card.img}" title="${bestTarget.card.name}" style="width:32px;height:44px;vertical-align:middle;border-radius:4px;">
-        <b>${bestTarget.card.name}</b>，支付${bestTarget.cost}金币。
+        <img src="${bestTarget.card.img}" title="${districtNameMap[bestTarget.card.name] || bestTarget.card.name}" style="width:32px;height:44px;vertical-align:middle;border-radius:4px;">
+        <b>${districtNameMap[bestTarget.card.name] || bestTarget.card.name}</b>，支付${bestTarget.cost}金币。
       </div>
       <button class="main-btn" id="warlord-skill-confirm-btn">执行破坏</button>
     `;
@@ -3139,6 +3388,8 @@ function showWarlordSkill(players, onFinish) {
 
   document.getElementById('warlord-skill-confirm-btn').onclick = () => {
     if (bestTarget) {
+      // 动画高亮被炸建筑
+      playSound('magic');
       // 扣金币，移除地区
       warlord.coins -= bestTarget.cost;
       bestTarget.player.built.splice(bestTarget.idx, 1);
@@ -3148,7 +3399,6 @@ function showWarlordSkill(players, onFinish) {
   };
 }
 
-
 function showGameResult() {
   // 计算分数
   const results = players.map(p => {
@@ -3156,6 +3406,7 @@ function showGameResult() {
     return {
       name: p.name,
       role: p.role,
+      roleKey: p.roleKey,
       score: districtScore + (p.coins || 0)
     };
   });
@@ -3165,11 +3416,14 @@ function showGameResult() {
 
   // 展示结果
   let html = `<div style="font-size:1.3rem;color:#ffe6b3;text-align:center;margin-bottom:18px;">游戏结算</div>`;
-  html += `<table style="width:100%;color:#ffe6b3;font-size:1.1rem;text-align:center;">`;
+  html += `<table style="width:100%;color:#ffe6b3;font-size:1.1rem;text-align:center;border-collapse:separate;border-spacing:0 8px;">`;
   html += `<tr><th>排名</th><th>姓名</th><th>角色</th><th>总分</th></tr>`;
   results.forEach((r, idx) => {
-    html += `<tr>
-      <td style="padding:6px 0;">${idx+1}</td>
+    html += `<tr style="${idx === 0 ? 'background:#3b2c23;font-weight:bold;color:#ffd700;' : ''}">
+      <td style="padding:6px 0;position:relative;">
+        ${idx+1}
+        ${idx === 0 ? '<span id="crown-final-placeholder" style="display:inline-block;width:32px;height:32px;vertical-align:middle;"></span>' : ''}
+      </td>
       <td>${r.name}</td>
       <td>${r.role}</td>
       <td>${r.score}</td>
@@ -3196,6 +3450,31 @@ function showGameResult() {
     </div>
   `;
   document.body.appendChild(popup);
+
+  // 动画：皇冠飞到第一名
+  setTimeout(() => {
+    const placeholder = document.getElementById('crown-final-placeholder');
+    if (placeholder) {
+      const crown = document.createElement('img');
+      crown.src = 'assets/others/crown.jpg';
+      crown.className = 'crown-img';
+      crown.style.width = '32px';
+      crown.style.height = '32px';
+      crown.style.marginLeft = '2px';
+      crown.style.verticalAlign = 'middle';
+      crown.style.position = 'relative';
+      crown.style.top = '-8px';
+      crown.style.left = '2px';
+      crown.style.filter = 'drop-shadow(0 2px 6px #ffe6b3cc)';
+      crown.style.opacity = '0';
+      placeholder.appendChild(crown);
+      setTimeout(() => {
+        crown.style.transition = 'opacity 0.8s, transform 0.8s cubic-bezier(.4,2,.6,1)';
+        crown.style.opacity = '1';
+        crown.style.transform = 'scale(1.2) rotate(-10deg)';
+      }, 200);
+    }
+  }, 400);
 }
 
 
