@@ -2626,5 +2626,151 @@ function showNavigatorBlessingVideo(onClose) {
   };
 }
 
+function startArtistTurn() {
+  showArtistPanel();
+}
+
+function showArtistPanel() {
+  // 清理主区，隐藏顶部信息
+  cardArea.innerHTML = '';
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 虚拟玩家对象
+  const artist = {
+    name: "余鹏文",
+    role: "美术家",
+    roleKey: "artist",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4),
+    built: [],
+    beautified: [] // 存放被美化的地区索引
+  };
+
+  // 1. 拿4金币
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+        美术家选择拿取4枚金币
+      </div>
+      <button class="main-btn" id="artist-get-coin-btn">拿4金币</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  document.getElementById('artist-get-coin-btn').onclick = () => {
+    playSound('coin');
+    artist.coins += 4;
+    // 2. 自动建造1~2个地区，总花费不超过当前金币
+    let total = 0, built = [];
+    for (let i = 0; i < artist.hand.length; i++) {
+      if (built.length < 2 && total + artist.hand[i].score <= artist.coins) {
+        built.push(artist.hand[i]);
+        total += artist.hand[i].score;
+      }
+    }
+    artist.built = built;
+    artist.coins -= total;
+    // 从手牌移除已建造的卡
+    artist.hand = artist.hand.filter(card => !built.includes(card));
+
+    // 3. 发动技能：美化1~2个地区
+    // 自动美化最多2个地区（优先高分），每个地区只能有一枚金币
+    let beautified = [];
+    for (let i = 0; i < built.length && beautified.length < 2 && artist.coins > 0; i++) {
+      beautified.push(i); // 记录被美化的 built 索引
+      artist.coins -= 1;
+    }
+    artist.beautified = beautified;
+
+    popup.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">美术家发动技能</div>
+        <img src="assets/roles/artist.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
+        <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+          美术家建造了${built.length}个地区，总花费${total}金币，剩余${artist.coins}金币<br>
+          <br>发动技能：美化${beautified.length}个地区
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:12px;justify-content:center;">
+          ${built.map((card, idx) => `
+            <div style="display:flex;flex-direction:column;align-items:center;position:relative;animation:fadeInCard 0.7s;">
+              <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+              ${beautified.includes(idx) ? `<img src="assets/others/coin.jpg" style="width:22px;position:absolute;top:4px;right:4px;" title="已美化">` : ''}
+              <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+            </div>
+          `).join('')}
+        </div>
+        <button class="main-btn" id="artist-bless-btn">美术家：“艺术即生活！”</button>
+      </div>
+    `;
+    playSound('magic');
+
+    // 4. 祝福视频
+    document.getElementById('artist-bless-btn').onclick = () => {
+      showArtistBlessingVideo(() => {
+        // 5. 行动结束，直接进入下一个角色
+        popup.remove();
+        // startWizardTurn(); // 你后续角色的函数
+      });
+    };
+  };
+}
+
+function showArtistBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="artist-bless-video" src="assets/videos/artist.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="artist-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="artist-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('artist-bless-video');
+  document.getElementById('artist-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('artist-bless-close').onclick = () => {
+    popup.remove();
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="artist-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="artist-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('artist-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('artist-bless-close2').onclick = () => {
+      popup.remove();
+      if (onClose) onClose();
+    };
+  };
+}
+
+
 
 
