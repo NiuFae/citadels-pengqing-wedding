@@ -3420,6 +3420,7 @@ function showGameResult() {
     </div>
   `;
   document.body.appendChild(popup);
+  playSound('success'); // <-- 新增，结算页面出现时播放胜利音效
 
   // 动画：皇冠飞到第一名
   setTimeout(() => {
