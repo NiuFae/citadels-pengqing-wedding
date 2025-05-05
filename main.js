@@ -2925,10 +2925,10 @@ function showWizardSkill(wizard, popup) {
   if (wizard.coins >= card.score) {
     wizard.coins -= card.score;
     wizard.built.push(card);
-    msg = `巫师从【${targetPlayer.name}（${targetPlayer.role}）】手牌中拿走了【${districtNameMap[card.name] || card.name}】，并立即建造（花费${card.score}金币）`;
+    msg = `巫师从${targetPlayer.role}手牌中拿走了${districtNameMap[card.name] || card.name}，并立即建造（花费${card.score}金币）`;
   } else {
     wizard.hand.push(card);
-    msg = `巫师从【${targetPlayer.name}（${targetPlayer.role}）】手牌中拿走了【${districtNameMap[card.name] || card.name}】，金币不足，加入手牌`;
+    msg = `巫师从${targetPlayer.role}手牌中拿走了${districtNameMap[card.name] || card.name}，金币不足，加入手牌`;
   }
   // 目标玩家手牌移除
   targetPlayer.hand.splice(cardIdx, 1);
@@ -3151,7 +3151,7 @@ function showDiplomatSkill(diplomat, popup) {
       // 交换
       diplomat.built[myIdx] = targetCard;
       targetPlayer.built[targetIdx] = myCard;
-      msg = `外交官用【${districtNameMap[myCard.name] || myCard.name}】与【${targetPlayer.name}】的【${districtNameMap[targetCard.name] || targetCard.name}】交换，支付${diff}金币`;
+      msg = `外交官用${districtNameMap[myCard.name] || myCard.name}与${targetPlayer.role}的${districtNameMap[targetCard.name] || targetCard.name}交换，支付${diff}金币`;
     } else {
       msg = `外交官金币不足，无法发动技能交换地区`;
     }
@@ -3164,7 +3164,7 @@ function showDiplomatSkill(diplomat, popup) {
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
       <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">${msg}</div>
       <img src="assets/roles/diplomat.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
-      <button class="main-btn" id="diplomat-bless-btn">进入祝福视频</button>
+      <button class="main-btn" id="diplomat-bless-btn">外交官：“能动手绝不动口。”</button>
     </div>
   `;
   document.getElementById('diplomat-bless-btn').onclick = () => {
