@@ -2290,3 +2290,162 @@ function showQueenBuildStep(popup) {
     startAlchemistTurn();
   };
 }
+
+function startAlchemistTurn() {
+  showAlchemistPanel();
+}
+
+function showAlchemistPanel() {
+  // 清理主区，隐藏顶部信息
+  cardArea.innerHTML = '';
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 高亮炼金术士信息面板（假设players[2]是炼金术士）
+  currentPlayerIdx = 2;
+  // 如果你没有players[2]，可以用临时对象，或直接用下面的alchemist对象
+  // renderPlayerPanel(currentPlayerIdx);
+
+  // 虚拟玩家对象
+  const alchemist = {
+    name: "刘泽仁",
+    role: "炼金术士",
+    roleKey: "alchemist",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4),
+    built: []
+  };
+
+  // 1. 拿4金币
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+        炼金术士选择拿取4枚金币
+      </div>
+      <button class="main-btn" id="alchemist-get-coin-btn">拿4金币</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  document.getElementById('alchemist-get-coin-btn').onclick = () => {
+    playSound('coin');
+    alchemist.coins += 4;
+    // 2. 自动建造1~2个地区，总花费不超过当前金币
+    let total = 0, built = [];
+    for (let i = 0; i < alchemist.hand.length; i++) {
+      if (built.length < 2 && total + alchemist.hand[i].score <= alchemist.coins) {
+        built.push(alchemist.hand[i]);
+        total += alchemist.hand[i].score;
+      }
+    }
+    alchemist.built = built;
+    alchemist.coins -= total;
+    // 从手牌移除已建造的卡
+    alchemist.hand = alchemist.hand.filter(card => !built.includes(card));
+
+    // 3. 发动技能，拿回建造花费
+    popup.innerHTML = `
+      <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
+        <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+          炼金术士建造了${built.length}个地区，总花费${total}金币，剩余${alchemist.coins}金币
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:12px;justify-content:center;">
+          ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+            <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+            <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+          </div>`).join('')}
+        </div>
+        <button class="main-btn" id="alchemist-skill-btn">发动技能：拿回建筑花费</button>
+      </div>
+    `;
+    playSound('construct');
+
+    document.getElementById('alchemist-skill-btn').onclick = () => {
+      playSound('coin');
+      alchemist.coins += total;
+      // 展示技能效果
+      popup.innerHTML = `
+        <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+          <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+            炼金术士发动技能，拿回${total}金币，现在有${alchemist.coins}金币
+          </div>
+          <button class="main-btn" id="alchemist-bless-btn">炼金术士：“拿回属于我的一切”（握爪）</button>
+        </div>
+      `;
+
+      // 4. 祝福视频
+      document.getElementById('alchemist-bless-btn').onclick = () => {
+        showAlchemistBlessingVideo(() => {
+          // 5. 行动结束
+          popup.innerHTML = `
+            <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+              <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+                炼金术士行动结束
+              </div>
+              <button class="main-btn" id="alchemist-end-btn">进入下一个角色</button>
+            </div>
+          `;
+          document.getElementById('alchemist-end-btn').onclick = () => {
+            popup.remove();
+            startNavigatorTurn();
+          };
+        });
+      };
+    };
+  };
+}
+
+function showAlchemistBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="alchemist-bless-video" src="assets/videos/alchemist.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="alchemist-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="alchemist-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('alchemist-bless-video');
+  document.getElementById('alchemist-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('alchemist-bless-close').onclick = () => {
+    popup.remove();
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="alchemist-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="alchemist-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('alchemist-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('alchemist-bless-close2').onclick = () => {
+      popup.remove();
+      if (onClose) onClose();
+    };
+  };
+}
