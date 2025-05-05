@@ -766,15 +766,8 @@ function showAssassinPanel() {
         `;
         document.getElementById('assassin-build-btn').onclick = () => {
           // 随机建造1~2个地区，总花费≤刺客当前金币
-          let total = 0, built = [];
-          for (let i = 0; i < assassin.hand.length; i++) {
-            if (built.length < 2 && total + assassin.hand[i].score <= assassin.coins) {
-              built.push(assassin.hand[i]);
-              total += assassin.hand[i].score;
-            }
-          }
-          assassin.built = built;
-          assassin.coins -= total; // 建造后扣除金币
+          const built = autoBuildDistrictsV2(assassin, 2, assassin.coins, false);
+           // 建造后扣除金币
           popup.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
               <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
@@ -918,15 +911,7 @@ function showThiefPanel() {
               `;
               document.getElementById('thief-build-btn').onclick = () => {
                 // 自动建造1~2个地区，总花费不超过盗贼当前金币
-                let total = 0, built = [];
-                for (let i = 0; i < thief.hand.length; i++) {
-                  if (built.length < 2 && total + thief.hand[i].score <= thief.coins) {
-                    built.push(thief.hand[i]);
-                    total += thief.hand[i].score;
-                  }
-                }
-                thief.built = built;
-                thief.coins -= total;
+                const built = autoBuildDistrictsV2(thief, 2, thief.coins, false);
                 // 建造动画
                 popup.innerHTML = `
                   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
@@ -1176,15 +1161,7 @@ function showMagicianPanel() {
             `;
             document.getElementById('magician-build-btn').onclick = () => {
               // 自动建造1~2个地区，总花费不超过魔法师当前金币
-              let total = 0, built = [];
-              for (let i = 0; i < magician.hand.length; i++) {
-                if (built.length < 2 && total + magician.hand[i].score <= magician.coins) {
-                  built.push(magician.hand[i]);
-                  total += magician.hand[i].score;
-                }
-              }
-              magician.built = built;
-              magician.coins -= total;
+              const built = autoBuildDistrictsV2(magician, 2, magician.coins, false);
               // 建造动画
               popup.innerHTML = `
                 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
@@ -1354,15 +1331,7 @@ function showKingGetCoins(king) {
 
 function showKingBuild(king) {
   // 自动建造1~2个地区，总花费不超过当前金币
-  let total = 0, built = [];
-  for (let i = 0; i < king.hand.length; i++) {
-    if (built.length < 2 && total + king.hand[i].score <= king.coins) {
-      built.push(king.hand[i]);
-      total += king.hand[i].score;
-    }
-  }
-  king.built = built;
-  king.coins -= total;
+  const built = autoBuildDistrictsV2(king, 2, king.coins, false);
 
   // 弹窗提示建造结果+角色图
   const popup = document.createElement('div');
@@ -1534,15 +1503,7 @@ function showBishopPanel() {
         `;
         document.getElementById('bishop-build-btn').onclick = () => {
           // 自动建造1~2个地区，总花费不超过当前金币
-          let total = 0, built = [];
-          for (let i = 0; i < bishop.hand.length; i++) {
-            if (built.length < 2 && total + bishop.hand[i].score <= bishop.coins) {
-              built.push(bishop.hand[i]);
-              total += bishop.hand[i].score;
-            }
-          }
-          bishop.built = built;
-          bishop.coins -= total;
+          const built = autoBuildDistrictsV2(bishop, 2, bishop.coins, false);
           popup.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
               <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">主教发动技能</div>
@@ -1871,15 +1832,7 @@ function showArchitectPanel() {
           `;
           document.getElementById('architect-build-btn').onclick = () => {
             // 自动建造最多3个地区，总花费不超过当前金币
-            let total = 0, built = [];
-            for (let i = 0; i < architect.hand.length; i++) {
-              if (built.length < 3 && total + architect.hand[i].score <= architect.coins) {
-                built.push(architect.hand[i]);
-                total += architect.hand[i].score;
-              }
-            }
-            architect.built = built;
-            architect.coins -= total;
+            const built = autoBuildDistrictsV2(architect, 3, architect.coins, false); // 建筑师最多建3个
             popup.innerHTML = `
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
                 <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
@@ -2068,15 +2021,7 @@ function showWarlordPanel() {
           `;
           document.getElementById('warlord-build-btn').onclick = () => {
             // 自动建造1~2个地区，总花费不超过当前金币
-            let total = 0, built = [];
-            for (let i = 0; i < warlord.hand.length; i++) {
-              if (built.length < 2 && total + warlord.hand[i].score <= warlord.coins) {
-                built.push(warlord.hand[i]);
-                total += warlord.hand[i].score;
-              }
-            }
-            warlord.built = built;
-            warlord.coins -= total;
+            const built = autoBuildDistrictsV2(warlord, 2, warlord.coins, false);
             popup.innerHTML = `
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
                 <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
@@ -2238,15 +2183,7 @@ function showQueenPanel() {
 function showQueenBuildStep(popup) {
   // 自动建造1~2个地区，总花费不超过当前金币
   const queen = players[1];
-  let total = 0, built = [];
-  for (let i = 0; i < queen.hand.length; i++) {
-    if (built.length < 2 && total + queen.hand[i].score <= queen.coins) {
-      built.push(queen.hand[i]);
-      total += queen.hand[i].score;
-    }
-  }
-  queen.built = built;
-  queen.coins -= total;
+  const built = autoBuildDistrictsV2(queen, 2, queen.coins, false);
 
   // 从手牌移除已建造的卡
   queen.hand = queen.hand.filter(card => !built.includes(card));
@@ -2324,15 +2261,7 @@ function showAlchemistPanel() {
     playSound('coin');
     alchemist.coins += 4;
     // 2. 自动建造1~2个地区，总花费不超过当前金币
-    let total = 0, built = [];
-    for (let i = 0; i < alchemist.hand.length; i++) {
-      if (built.length < 2 && total + alchemist.hand[i].score <= alchemist.coins) {
-        built.push(alchemist.hand[i]);
-        total += alchemist.hand[i].score;
-      }
-    }
-    alchemist.built = built;
-    alchemist.coins -= total;
+    const built = autoBuildDistrictsV2(alchemist, 2, alchemist.coins, false);
     // 从手牌移除已建造的卡
     alchemist.hand = alchemist.hand.filter(card => !built.includes(card));
 
@@ -2478,15 +2407,7 @@ function showNavigatorPanel() {
     playSound('coin');
     navigator.coins += 4;
     // 2. 自动建造1~2个地区，总花费不超过当前金币
-    let total = 0, built = [];
-    for (let i = 0; i < navigator.hand.length; i++) {
-      if (built.length < 2 && total + navigator.hand[i].score <= navigator.coins) {
-        built.push(navigator.hand[i]);
-        total += navigator.hand[i].score;
-      }
-    }
-    navigator.built = built;
-    navigator.coins -= total;
+    const built = autoBuildDistrictsV2(navigator, 2, navigator.coins, false);
     // 从手牌移除已建造的卡
     navigator.hand = navigator.hand.filter(card => !built.includes(card));
 
@@ -2631,15 +2552,7 @@ function showArtistPanel() {
     playSound('coin');
     artist.coins += 4;
     // 2. 自动建造1~2个地区，总花费不超过当前金币
-    let total = 0, built = [];
-    for (let i = 0; i < artist.hand.length; i++) {
-      if (built.length < 2 && total + artist.hand[i].score <= artist.coins) {
-        built.push(artist.hand[i]);
-        total += artist.hand[i].score;
-      }
-    }
-    artist.built = built;
-    artist.coins -= total;
+    const built = autoBuildDistrictsV2(artist, 2, artist.coins, false);
     // 从手牌移除已建造的卡
     artist.hand = artist.hand.filter(card => !built.includes(card));
 
@@ -2769,6 +2682,34 @@ function renderHandCards(hand) {
   </div>`;
 }
 
+/**
+ * 通用自动建造函数
+ * @param {Object} player - 玩家对象
+ * @param {number} maxBuild - 本轮最多建造几个
+ * @param {number} maxCost - 本轮最多花费金币
+ * @param {boolean} allowRepeat - 是否允许建造重复地区（巫师true，其他false）
+ * @returns {Array} 新建造的卡牌数组
+ */
+function autoBuildDistrictsV2(player, maxBuild, maxCost, allowRepeat = false) {
+  let total = 0, built = [];
+  // 已建造地区名
+  const builtNames = (player.built || []).map(card => card.name);
+  for (let i = 0; i < player.hand.length; i++) {
+    const card = player.hand[i];
+    const alreadyBuilt = builtNames.includes(card.name) || built.some(c => c.name === card.name);
+    if (built.length < maxBuild && total + card.score <= maxCost && (allowRepeat || !alreadyBuilt)) {
+      built.push(card);
+      total += card.score;
+    }
+  }
+  // 更新玩家数据
+  player.built = (player.built || []).concat(built);
+  player.coins -= total;
+  // 从手牌移除已建造的卡
+  player.hand = player.hand.filter(card => !built.includes(card));
+  return built;
+}
+
 function autoBuildDistricts(player, maxCost, callback) {
   let total = 0, built = [];
   for (let i = 0; i < player.hand.length; i++) {
@@ -2893,12 +2834,10 @@ function showWizardSkill(wizard, popup) {
   targetPlayer.hand.splice(cardIdx, 1);
 
   // 巫师还可以正常建造一个地区（自动建造）
-  let canBuild = wizard.hand.find(card => wizard.coins >= card.score);
-  if (canBuild) {
-    wizard.coins -= canBuild.score;
-    wizard.built.push(canBuild);
-    wizard.hand = wizard.hand.filter(c => c !== canBuild);
-    msg += `，随后又建造了${districtNameMap[canBuild.name] || canBuild.name}（花费${canBuild.score}金币）`;
+  // 巫师还可以正常建造一个地区（允许重复）
+  const built = autoBuildDistrictsV2(wizard, 1, wizard.coins, true);
+  if (built.length > 0) {
+    msg += `，随后又建造了${districtNameMap[built[0].name] || built[0].name}（花费${built[0].score}金币）`;
   }
 
   // 弹窗展示技能结果
@@ -3046,16 +2985,7 @@ function showDiplomatPanel() {
     diplomat.coins += 4;
     // 自动建造1~2个地区，总花费≤8金币
     setTimeout(() => {
-      let total = 0, built = [];
-      for (let i = 0; i < diplomat.hand.length; i++) {
-        if (built.length < 2 && total + diplomat.hand[i].score <= 8 && diplomat.coins >= diplomat.hand[i].score) {
-          built.push(diplomat.hand[i]);
-          total += diplomat.hand[i].score;
-          diplomat.coins -= diplomat.hand[i].score;
-        }
-      }
-      diplomat.built = built;
-      diplomat.hand = diplomat.hand.filter(card => !built.includes(card));
+      const built = autoBuildDistrictsV2(diplomat, 2, 8, false);
       showDiplomatRedBonus(diplomat, popup, total, built);
     }, 600);
   };
