@@ -1387,19 +1387,22 @@ function showKingBuild(king) {
   popup.style.alignItems = 'center';
   popup.style.justifyContent = 'center';
   popup.innerHTML = `
-     <div style="background:#2d1c13; ...">
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
       <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">国王发动技能</div>
       <img src="assets/roles/king.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
-      <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:18px;">
+      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
         国王建造了${built.length}个地区，总花费${total}金币，剩余${king.coins}金币
       </div>
-      <div style="display:flex;gap:10px; ...">
-        ${built.map(card => `<div ...>...</div>`).join('')}
+      <div style="display:flex;gap:10px;margin-bottom:12px;justify-content:center;">
+        ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+          <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+          <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+        </div>`).join('')}
       </div>
       <button class="main-btn" id="king-bonus-btn">结算贵族奖励</button>
     </div>
   `;
-  playSound('magic'); // 或 playSound('cover')
+  playSound('magic');
   document.body.appendChild(popup);
   playSound('construct');
 
