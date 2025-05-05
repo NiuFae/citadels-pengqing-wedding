@@ -667,6 +667,7 @@ function startAssassinTurn() {
 
 function showAssassinPanel() {
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -807,6 +808,7 @@ function startThiefTurn() {
 function showThiefPanel() {
   playSound('magic');
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1038,6 +1040,7 @@ function startMagicianTurn() {
 function showMagicianPanel() {
   playSound('magic');
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1263,6 +1266,7 @@ function startKingTurn() {
 
 function showKingPanel() {
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1441,6 +1445,7 @@ function startBishopTurn() {
 function showBishopPanel() {
   playSound('magic');
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1640,6 +1645,7 @@ function startMerchantTurn() {
 function showMerchantPanel() {
   playSound('notification'); // 进入商人回合音效
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1736,6 +1742,7 @@ function startArchitectTurn() {
 function showArchitectPanel() {
   playSound('magic');
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -1958,6 +1965,7 @@ function startWarlordTurn() {
 function showWarlordPanel() {
   playSound('magic');
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -2169,6 +2177,7 @@ function startQueenTurn() {
 function showQueenPanel() {
   playSound('magic');
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -2277,6 +2286,7 @@ function startAlchemistTurn() {
 function showAlchemistPanel() {
   // 清理主区，隐藏顶部信息
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -2435,6 +2445,7 @@ function startNavigatorTurn() {
 function showNavigatorPanel() {
   // 清理主区，隐藏顶部信息
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -2586,6 +2597,7 @@ function startArtistTurn() {
 function showArtistPanel() {
   // 清理主区，隐藏顶部信息
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -2774,6 +2786,7 @@ function autoBuildDistricts(player, maxCost, callback) {
 function showWizardPanel() {
   playSound('magic');
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
@@ -2958,6 +2971,7 @@ function startDiplomatTurn() {
 function showDiplomatPanel() {
   playSound('magic');
   cardArea.innerHTML = '';
+  actionArea.innerHTML = ''; 
   playerInfo.textContent = '';
   playerInfo.style.display = 'none';
   coinInfo.style.display = 'none';
