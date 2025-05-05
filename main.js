@@ -794,7 +794,8 @@ function showAssassinPanel() {
         document.getElementById('assassin-build-btn').onclick = () => {
           // 随机建造1~2个地区，总花费≤刺客当前金币
           const built = autoBuildDistrictsV2(assassin, 2, assassin.coins, false);
-           // 建造后扣除金币
+           const total = built.reduce((sum, card) => sum + card.score, 0); // 新增 
+          // 建造后扣除金币
           popup.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
               <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
@@ -939,6 +940,7 @@ function showThiefPanel() {
               document.getElementById('thief-build-btn').onclick = () => {
                 // 自动建造1~2个地区，总花费不超过盗贼当前金币
                 const built = autoBuildDistrictsV2(thief, 2, thief.coins, false);
+                const total = built.reduce((sum, card) => sum + card.score, 0); // 新增
                 // 建造动画
                 popup.innerHTML = `
                   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
@@ -1189,6 +1191,7 @@ function showMagicianPanel() {
             document.getElementById('magician-build-btn').onclick = () => {
               // 自动建造1~2个地区，总花费不超过魔法师当前金币
               const built = autoBuildDistrictsV2(magician, 2, magician.coins, false);
+              const total = built.reduce((sum, card) => sum + card.score, 0); //
               // 建造动画
               popup.innerHTML = `
                 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
@@ -1359,7 +1362,7 @@ function showKingGetCoins(king) {
 function showKingBuild(king) {
   // 自动建造1~2个地区，总花费不超过当前金币
   const built = autoBuildDistrictsV2(king, 2, king.coins, false);
-
+  const total = built.reduce((sum, card) => sum + card.score, 0); 
   // 弹窗提示建造结果+角色图
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
@@ -1531,6 +1534,7 @@ function showBishopPanel() {
         document.getElementById('bishop-build-btn').onclick = () => {
           // 自动建造1~2个地区，总花费不超过当前金币
           const built = autoBuildDistrictsV2(bishop, 2, bishop.coins, false);
+          const total = built.reduce((sum, card) => sum + card.score, 0); 
           popup.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
               <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">主教发动技能</div>
@@ -1860,6 +1864,7 @@ function showArchitectPanel() {
           document.getElementById('architect-build-btn').onclick = () => {
             // 自动建造最多3个地区，总花费不超过当前金币
             const built = autoBuildDistrictsV2(architect, 3, architect.coins, false); // 建筑师最多建3个
+            const total = built.reduce((sum, card) => sum + card.score, 0);
             popup.innerHTML = `
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
                 <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
@@ -2049,6 +2054,7 @@ function showWarlordPanel() {
           document.getElementById('warlord-build-btn').onclick = () => {
             // 自动建造1~2个地区，总花费不超过当前金币
             const built = autoBuildDistrictsV2(warlord, 2, warlord.coins, false);
+            const total = built.reduce((sum, card) => sum + card.score, 0); 
             popup.innerHTML = `
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
                 <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
@@ -2211,7 +2217,8 @@ function showQueenBuildStep(popup) {
   // 自动建造1~2个地区，总花费不超过当前金币
   const queen = players[1];
   const built = autoBuildDistrictsV2(queen, 2, queen.coins, false);
-
+  const total = built.reduce((sum, card) => sum + card.score, 0); 
+  
   // 从手牌移除已建造的卡
   queen.hand = queen.hand.filter(card => !built.includes(card));
 
@@ -2289,6 +2296,7 @@ function showAlchemistPanel() {
     alchemist.coins += 4;
     // 2. 自动建造1~2个地区，总花费不超过当前金币
     const built = autoBuildDistrictsV2(alchemist, 2, alchemist.coins, false);
+    const total = built.reduce((sum, card) => sum + card.score, 0); 
     // 从手牌移除已建造的卡
     alchemist.hand = alchemist.hand.filter(card => !built.includes(card));
 
@@ -2435,6 +2443,7 @@ function showNavigatorPanel() {
     navigator.coins += 4;
     // 2. 自动建造1~2个地区，总花费不超过当前金币
     const built = autoBuildDistrictsV2(navigator, 2, navigator.coins, false);
+    const total = built.reduce((sum, card) => sum + card.score, 0);
     // 从手牌移除已建造的卡
     navigator.hand = navigator.hand.filter(card => !built.includes(card));
 
@@ -2580,6 +2589,7 @@ function showArtistPanel() {
     artist.coins += 4;
     // 2. 自动建造1~2个地区，总花费不超过当前金币
     const built = autoBuildDistrictsV2(artist, 2, artist.coins, false);
+    const total = built.reduce((sum, card) => sum + card.score, 0); 
     // 从手牌移除已建造的卡
     artist.hand = artist.hand.filter(card => !built.includes(card));
 
@@ -2985,6 +2995,7 @@ function showDiplomatPanel() {
     // 自动建造1~2个地区，总花费≤8金币
     setTimeout(() => {
       const built = autoBuildDistrictsV2(diplomat, 2, 8, false);
+      const total = built.reduce((sum, card) => sum + card.score, 0);
       showDiplomatRedBonus(diplomat, popup, total, built);
     }, 600);
   };
