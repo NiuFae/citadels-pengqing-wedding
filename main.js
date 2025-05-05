@@ -1377,7 +1377,7 @@ function showKingBuild(king) {
   king.built = built;
   king.coins -= total;
 
-  // 弹窗提示建造结果
+  // 弹窗提示建造结果+角色图
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
   popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
@@ -1387,19 +1387,19 @@ function showKingBuild(king) {
   popup.style.alignItems = 'center';
   popup.style.justifyContent = 'center';
   popup.innerHTML = `
-    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:380px;box-shadow:0 2px 16px #000a;text-align:center;">
-      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
+     <div style="background:#2d1c13; ...">
+      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">国王发动技能</div>
+      <img src="assets/roles/king.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
+      <div style="color:#ffe6b3;font-size:1.1rem;margin-bottom:18px;">
         国王建造了${built.length}个地区，总花费${total}金币，剩余${king.coins}金币
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:12px;justify-content:center;">
-        ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
-          <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
-          <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
-        </div>`).join('')}
+      <div style="display:flex;gap:10px; ...">
+        ${built.map(card => `<div ...>...</div>`).join('')}
       </div>
       <button class="main-btn" id="king-bonus-btn">结算贵族奖励</button>
     </div>
   `;
+  playSound('magic'); // 或 playSound('cover')
   document.body.appendChild(popup);
   playSound('construct');
 
@@ -1503,6 +1503,7 @@ function showBishopPanel() {
   popup.innerHTML = html;
   document.body.appendChild(popup);
 
+
   // 禁止查看主教手牌
   setTimeout(() => {
     const handArea = document.getElementById('bishop-hand-area');
@@ -1558,6 +1559,8 @@ function showBishopPanel() {
           bishop.coins -= total;
           popup.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+              <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">主教发动技能</div>
+              <img src="assets/roles/bishop.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
               <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">
                 主教建造了${built.length}个地区，总花费${total}金币，剩余${bishop.coins}金币
               </div>
@@ -1570,6 +1573,7 @@ function showBishopPanel() {
               <button class="main-btn" id="bishop-bonus-btn">结算宗教奖励</button>
             </div>
           `;
+          playSound('magic');
           playSound('construct');
           document.getElementById('bishop-bonus-btn').onclick = () => {
             // 结算蓝色奖励
@@ -1833,13 +1837,16 @@ function showArchitectPanel() {
   document.getElementById('architect-skill-btn').onclick = () => {
     playSound('magic');
     // 弹窗提示技能发动
-    popup.innerHTML = `
+   popup.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">建筑师发动技能，额外抽2张地区卡</div>
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">建筑师发动技能</div>
+        <img src="assets/roles/architect.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:18px;">额外抽2张地区卡</div>
         <div id="architect-draw-cards" style="display:flex;gap:10px;margin-bottom:18px;"></div>
         <button class="main-btn" id="architect-bless-btn">建筑师：“谢绝甜豆腐脑工程。”</button>
       </div>
     `;
+    playSound('magic');
     // 动画抽2张卡
     setTimeout(() => {
       const deck = generateDistrictDeck();
@@ -2059,12 +2066,15 @@ function showWarlordPanel() {
     // 军阀决定暂不发动攻击技能
     popup.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">军阀发动技能</div>
+        <img src="assets/roles/warlord.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
         <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
           军阀决定，本轮暂不启动对他人建筑的攻打与破坏。<br>当第一回合临近结束时，再发动该技能。
         </div>
         <button class="main-btn" id="warlord-bless-btn">军阀：“艺术，就是爆炸！”</button>
       </div>
     `;
+    playSound('magic');
     document.getElementById('warlord-bless-btn').onclick = () => {
       showWarlordBlessingVideo(() => {
         // 祝福视频关闭后，军阀拿金币
@@ -2211,12 +2221,15 @@ function showQueenPanel() {
   popup.style.justifyContent = 'center';
   popup.innerHTML = `
     <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">皇后发动技能</div>
+      <img src="assets/roles/queen.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
       <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
         由于皇后在物理意义上坐在国王旁边，<br>触发被动技能，皇后获得3枚金币
       </div>
       <button class="main-btn" id="queen-passive-btn">获得3金币</button>
     </div>
   `;
+  playSound('magic');
   document.body.appendChild(popup);
 
   // 被动技能：获得3金币
@@ -2375,12 +2388,15 @@ function showAlchemistPanel() {
       // 展示技能效果
       popup.innerHTML = `
         <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+          <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">炼金术士发动技能</div>
+          <img src="assets/roles/alchemist.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
           <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
             炼金术士发动技能，拿回${total}金币，现在有${alchemist.coins}金币
           </div>
           <button class="main-btn" id="alchemist-bless-btn">炼金术士：“拿回属于我的一切”（握爪）</button>
         </div>
       `;
+      playSound('magic');
 
       // 4. 祝福视频
       document.getElementById('alchemist-bless-btn').onclick = () => {
