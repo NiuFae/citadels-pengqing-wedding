@@ -2947,7 +2947,7 @@ function showWizardSkill(wizard, popup) {
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
       <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">${msg}</div>
       <img src="assets/roles/wizard.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
-      <button class="main-btn" id="wizard-bless-btn">进入祝福视频</button>
+      <button class="main-btn" id="wizard-bless-btn">巫师：“昨晚夜观天象，今天适合吃甜口。”</button>
     </div>
   `;
   document.getElementById('wizard-bless-btn').onclick = () => {
