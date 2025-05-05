@@ -193,6 +193,33 @@ function showSection(id) {
   document.querySelectorAll('.section').forEach(sec => sec.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
+/**
+ * 通用自动建造函数
+ * @param {Object} player - 玩家对象
+ * @param {number} maxBuild - 本轮最多建造几个
+ * @param {number} maxCost - 本轮最多花费金币
+ * @param {boolean} allowRepeat - 是否允许建造重复地区（巫师true，其他false）
+ * @returns {Array} 新建造的卡牌数组
+ */
+function autoBuildDistrictsV2(player, maxBuild, maxCost, allowRepeat = false) {
+  let total = 0, built = [];
+  // 已建造地区名
+  const builtNames = (player.built || []).map(card => card.name);
+  for (let i = 0; i < player.hand.length; i++) {
+    const card = player.hand[i];
+    const alreadyBuilt = builtNames.includes(card.name) || built.some(c => c.name === card.name);
+    if (built.length < maxBuild && total + card.score <= maxCost && (allowRepeat || !alreadyBuilt)) {
+      built.push(card);
+      total += card.score;
+    }
+  }
+  // 更新玩家数据
+  player.built = (player.built || []).concat(built);
+  player.coins -= total;
+  // 从手牌移除已建造的卡
+  player.hand = player.hand.filter(card => !built.includes(card));
+  return built;
+}
 
 // ========== 封面区 ==========
 const coverSection = document.getElementById('cover-section');
@@ -2680,34 +2707,6 @@ function renderHandCards(hand) {
       </div>
     `).join('')}
   </div>`;
-}
-
-/**
- * 通用自动建造函数
- * @param {Object} player - 玩家对象
- * @param {number} maxBuild - 本轮最多建造几个
- * @param {number} maxCost - 本轮最多花费金币
- * @param {boolean} allowRepeat - 是否允许建造重复地区（巫师true，其他false）
- * @returns {Array} 新建造的卡牌数组
- */
-function autoBuildDistrictsV2(player, maxBuild, maxCost, allowRepeat = false) {
-  let total = 0, built = [];
-  // 已建造地区名
-  const builtNames = (player.built || []).map(card => card.name);
-  for (let i = 0; i < player.hand.length; i++) {
-    const card = player.hand[i];
-    const alreadyBuilt = builtNames.includes(card.name) || built.some(c => c.name === card.name);
-    if (built.length < maxBuild && total + card.score <= maxCost && (allowRepeat || !alreadyBuilt)) {
-      built.push(card);
-      total += card.score;
-    }
-  }
-  // 更新玩家数据
-  player.built = (player.built || []).concat(built);
-  player.coins -= total;
-  // 从手牌移除已建造的卡
-  player.hand = player.hand.filter(card => !built.includes(card));
-  return built;
 }
 
 function autoBuildDistricts(player, maxCost, callback) {
