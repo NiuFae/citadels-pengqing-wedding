@@ -3301,26 +3301,77 @@ allTargets.sort((a, b) => b.value - a.value);
 const bestTarget = allTargets[0];
   
 
+if (bestTarget) {
+  // 详细解释
+  let reason = `军阀对所有可破坏目标进行了评分，评分=建筑分数${bestTarget.isKing ? '+2（国王加权）' : ''}。<br>`;
+  reason += '本轮所有可选目标如下：<ul style="text-align:left">';
+  allTargets.forEach(t => {
+    reason += `<li>${t.player.name}（${t.player.role}）的【${districtNameMap[t.card.name] || t.card.name}】，分数${t.card.score}，破坏成本${t.cost}，评分${t.value}${t === bestTarget ? ' <b style="color:#ff4d4f;">（最优）</b>' : ''}</li>`;
+  });
+  reason += '</ul>';
+  reason += `军阀最终选择了评分最高的目标：<b>${bestTarget.player.name}（${bestTarget.player.role}）的【${districtNameMap[bestTarget.card.name] || bestTarget.card.name}】</b>。`;
+
   // 弹窗
   let html = `<div style="text-align:center;">
     <img src="assets/roles/warlord.jpg" style="width:60px;height:60px;border-radius:10px;"><br>
-    <div style="font-size:1.1rem;color:#ffe6b3;margin:10px 0 8px 0;">军阀正在思考要攻打谁…</div>
+    <div style="font-size:1.1rem;color:#ffe6b3;margin:10px 0 8px 0;">军阀决策说明</div>
+    <div style="color:#ffe6b3;margin-bottom:12px;">${reason}</div>
+    <button class="main-btn" id="warlord-skill-exec-btn">执行破坏</button>
+  </div>`;
+
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.92)';
+  popup.style.zIndex = '6000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#1a1a1a;padding:24px 18px 16px 18px;border-radius:16px;max-width:420px;width:92vw;box-shadow:0 2px 16px #000a;">
+      ${html}
+    </div>
   `;
-  if (bestTarget) {
-    html += `
-      <div style="color:#ffe6b3;margin-bottom:8px;">
-        军阀决定攻打 <b>${bestTarget.player.name}（${bestTarget.player.role}）</b> 的地区
-        <img src="${bestTarget.card.img}" title="${districtNameMap[bestTarget.card.name] || bestTarget.card.name}" style="width:32px;height:44px;vertical-align:middle;border-radius:4px;">
-        <b>${districtNameMap[bestTarget.card.name] || bestTarget.card.name}</b>，支付${bestTarget.cost}金币。
-      </div>
-      <button class="main-btn" id="warlord-skill-confirm-btn">执行破坏</button>
-    `;
-  } else {
-    html += `<div style="color:#ffe6b3;">没有可破坏的地区，军阀放弃技能。</div>
-      <button class="main-btn" id="warlord-skill-confirm-btn">继续</button>
-    `;
-  }
-  html += `</div>`;
+  document.body.appendChild(popup);
+
+  document.getElementById('warlord-skill-exec-btn').onclick = () => {
+    playSound('magic');
+    warlord.coins -= bestTarget.cost;
+    bestTarget.player.built.splice(bestTarget.idx, 1);
+    document.body.removeChild(popup);
+    if (onFinish) onFinish();
+  };
+} else {
+  // 没有可炸目标的情况
+  let html = `<div style="text-align:center;">
+    <img src="assets/roles/warlord.jpg" style="width:60px;height:60px;border-radius:10px;"><br>
+    <div style="font-size:1.1rem;color:#ffe6b3;margin:10px 0 8px 0;">军阀决策说明</div>
+    <div style="color:#ffe6b3;margin-bottom:12px;">没有可破坏的地区，军阀放弃技能。</div>
+    <button class="main-btn" id="warlord-skill-exec-btn">继续</button>
+  </div>`;
+
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.92)';
+  popup.style.zIndex = '6000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#1a1a1a;padding:24px 18px 16px 18px;border-radius:16px;max-width:420px;width:92vw;box-shadow:0 2px 16px #000a;">
+      ${html}
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  document.getElementById('warlord-skill-exec-btn').onclick = () => {
+    document.body.removeChild(popup);
+    if (onFinish) onFinish();
+  };
+}
+
+  
 
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
