@@ -2468,3 +2468,163 @@ function showAlchemistBlessingVideo(onClose) {
     };
   };
 }
+
+
+function startNavigatorTurn() {
+  showNavigatorPanel();
+}
+
+function showNavigatorPanel() {
+  // 清理主区，隐藏顶部信息
+  cardArea.innerHTML = '';
+  playerInfo.textContent = '';
+  playerInfo.style.display = 'none';
+  coinInfo.style.display = 'none';
+
+  // 虚拟玩家对象
+  const navigator = {
+    name: "洪漪妮",
+    role: "航海家",
+    roleKey: "navigator",
+    coins: 4,
+    hand: generateDistrictDeck().slice(0, 4),
+    built: []
+  };
+
+  // 1. 拿4金币
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.85)';
+  popup.style.zIndex = '4000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+      <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+        航海家选择拿取4枚金币
+      </div>
+      <button class="main-btn" id="navigator-get-coin-btn">拿4金币</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  document.getElementById('navigator-get-coin-btn').onclick = () => {
+    playSound('coin');
+    navigator.coins += 4;
+    // 2. 自动建造1~2个地区，总花费不超过当前金币
+    let total = 0, built = [];
+    for (let i = 0; i < navigator.hand.length; i++) {
+      if (built.length < 2 && total + navigator.hand[i].score <= navigator.coins) {
+        built.push(navigator.hand[i]);
+        total += navigator.hand[i].score;
+      }
+    }
+    navigator.built = built;
+    navigator.coins -= total;
+    // 从手牌移除已建造的卡
+    navigator.hand = navigator.hand.filter(card => !built.includes(card));
+
+    // 3. 发动技能（再拿4金币，带角色图+音效）
+    popup.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+        <div style="color:#ffe6b3;font-size:1.2rem;margin-bottom:12px;">航海家发动技能</div>
+        <img src="assets/roles/navigator.jpg" style="width:120px;height:180px;border-radius:14px;box-shadow:0 2px 16px #000a;margin-bottom:18px;">
+        <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+          航海家建造了${built.length}个地区，总花费${total}金币，剩余${navigator.coins}金币<br>
+          <br>发动技能：再拿取4枚金币
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:12px;justify-content:center;">
+          ${built.map(card => `<div style="display:flex;flex-direction:column;align-items:center;animation:fadeInCard 0.7s;">
+            <img src="${card.img}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;box-shadow:0 1px 4px #0006;">
+            <span style="color:#ffe6b3;font-size:0.95rem;">${districtNameMap[card.name] || card.name}</span>
+          </div>`).join('')}
+        </div>
+        <button class="main-btn" id="navigator-skill-btn">再拿4金币</button>
+      </div>
+    `;
+    playSound('magic');
+
+    document.getElementById('navigator-skill-btn').onclick = () => {
+      playSound('coin');
+      navigator.coins += 4;
+      // 4. 祝福视频
+      popup.innerHTML = `
+        <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+          <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+            航海家发动技能，获得4金币，现在有${navigator.coins}金币
+          </div>
+          <button class="main-btn" id="navigator-bless-btn">航海家：“征途是星辰大海~”</button>
+        </div>
+      `;
+      document.getElementById('navigator-bless-btn').onclick = () => {
+        showNavigatorBlessingVideo(() => {
+          // 5. 行动结束
+          popup.innerHTML = `
+            <div style="background:#2d1c13;padding:22px 18px 16px 18px;border-radius:14px;max-width:340px;box-shadow:0 2px 16px #000a;text-align:center;">
+              <div style="color:#ffe6b3;font-size:1.15rem;margin-bottom:18px;">
+                航海家行动结束
+              </div>
+              <button class="main-btn" id="navigator-end-btn">进入下一个角色</button>
+            </div>
+          `;
+          document.getElementById('navigator-end-btn').onclick = () => {
+            popup.remove();
+            // 进入下一个角色流程
+            // startArtistTurn(); // 你后续角色的函数
+          };
+        });
+      };
+    };
+  };
+}
+
+function showNavigatorBlessingVideo(onClose) {
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.95)';
+  popup.style.zIndex = '5000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#2d1c13;padding:10px 10px 10px 10px;border-radius:14px;max-width:98vw;max-height:98vh;box-shadow:0 2px 16px #000a;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <video id="navigator-bless-video" src="assets/videos/navigator.mp4" style="width:100vw;max-width:420px;height:70vh;border-radius:10px;background:#000;" controls poster="" preload="auto"></video>
+      <div style="margin-top:10px;display:flex;gap:16px;justify-content:center;">
+        <button id="navigator-bless-play" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">▶</button>
+        <button id="navigator-bless-close" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  playSound('notification');
+  const video = document.getElementById('navigator-bless-video');
+  document.getElementById('navigator-bless-play').onclick = () => {
+    video.currentTime = 0;
+    video.play();
+  };
+  document.getElementById('navigator-bless-close').onclick = () => {
+    popup.remove();
+    if (onClose) onClose();
+  };
+  video.onended = () => {
+    // 播放完毕后出现“再次播放”和“关闭”按钮
+    popup.querySelector('div[style*="margin-top:10px"]').innerHTML = `
+      <button id="navigator-bless-replay" class="main-btn" style="padding:6px 18px;font-size:1.1rem;">⟳ 再次播放</button>
+      <button id="navigator-bless-close2" class="main-btn" style="padding:6px 18px;font-size:1.1rem;background:#a33;color:#fff;">✖ 关闭</button>
+    `;
+    document.getElementById('navigator-bless-replay').onclick = () => {
+      video.currentTime = 0;
+      video.play();
+    };
+    document.getElementById('navigator-bless-close2').onclick = () => {
+      popup.remove();
+      if (onClose) onClose();
+    };
+  };
+}
+
+
+
