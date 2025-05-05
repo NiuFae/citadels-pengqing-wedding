@@ -3608,7 +3608,7 @@ function showEggOptions() {
   };
   document.getElementById('egg-gugu').onclick = () => {
     optPopup.remove();
-    showEggText('希望鸽子们不管在哪，在做什么，都要照顾好自己，好好吃饭好好睡觉，每一天都认认真真、开开心心地生活！期待线下不鸽的一天~！');
+    showEggText('希望鸽子们不管在哪，在做什么，都要照顾好自己，好好吃饭好好睡觉，每一天都认认真真、开开心心地生活！期待线下不鸽的一天！');
   };
   document.getElementById('egg-queen').onclick = () => {
     optPopup.remove();
