@@ -2570,7 +2570,7 @@ function showNavigatorPanel() {
           document.getElementById('navigator-end-btn').onclick = () => {
             popup.remove();
             // 进入下一个角色流程
-            // startArtistTurn(); // 你后续角色的函数
+            startArtistTurn(); // 你后续角色的函数
           };
         });
       };
@@ -2717,7 +2717,7 @@ function showArtistPanel() {
       showArtistBlessingVideo(() => {
         // 5. 行动结束，直接进入下一个角色
         popup.remove();
-        // startWizardTurn(); // 你后续角色的函数
+        startWizardTurn(); // 你后续角色的函数
       });
     };
   };
@@ -2846,6 +2846,7 @@ function showWizardBlessing(wizard) {
   showBlessingVideo('wizard', '巫师：“魔法之手，洞察玄机。”', () => {
     // 巫师行动结束
     // 进入下一个角色
+    startDiplomatTurn();
   });
 }
 
