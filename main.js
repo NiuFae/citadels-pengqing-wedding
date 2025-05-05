@@ -529,9 +529,9 @@ function showDealAnimation() {
     nextBtn.className = 'main-btn';
     // 优化按钮文案
     if (currentPlayerIdx === 0) {
-      nextBtn.textContent = '接下来，彭青（国王）将获得4枚金币';
+      nextBtn.textContent = '彭青（国王）将获得4枚金币';
     } else {
-      nextBtn.textContent = '接下来，吴璨（皇后）将获得4枚金币';
+      nextBtn.textContent = '吴璨（皇后）将获得4枚金币';
     }
     nextBtn.onclick = () => {
       playSound('click');
