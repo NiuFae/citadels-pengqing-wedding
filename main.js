@@ -3253,6 +3253,15 @@ players.forEach(p => {
 });
 allTargets.sort((a, b) => b.value - a.value);
 const bestTarget = allTargets[0];
+
+  // 计算当前分数排名第一的玩家
+const rankedPlayers = [...players].sort((a, b) => {
+  const aScore = (a.built || []).reduce((sum, card) => sum + (card.score || 0), 0) + (a.coins || 0);
+  const bScore = (b.built || []).reduce((sum, card) => sum + (card.score || 0), 0) + (b.coins || 0);
+  return bScore - aScore;
+});
+const topPlayer = rankedPlayers[0];
+  
       // 只保留下面这一套 if/else
     const popup = document.createElement('div');
     popup.style.position = 'fixed';
@@ -3267,8 +3276,8 @@ const bestTarget = allTargets[0];
     if (bestTarget) {
       let reason = '';
       // 解释逻辑
-      if (bestTarget.player === players[0]) {
-        reason = `军阀优先选择了当前排名第一的玩家（${bestTarget.player.name}），以阻止其获胜。`;
+      if (bestTarget.player === topPlayer) {
+        reason = `军阀优先选择了当前排名第一的玩家${bestTarget.player.name}，以阻止其获胜。`;
       } else if (bestTarget.card.score >= 5) {
         reason = `军阀选择了高分地区（${districtNameMap[bestTarget.card.name] || bestTarget.card.name}），因为高分建筑对总分影响最大。`;
       } else if (bestTarget.cost === 0) {
