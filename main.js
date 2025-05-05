@@ -3304,7 +3304,7 @@ function showWarlordSkill(players, onFinish) {
   if (bestTarget) {
     html += `
       <div style="color:#ffe6b3;margin-bottom:8px;">
-        军阀决定攻打 <b>${bestTarget.player.name}</b> 的地区
+        军阀决定攻打 <b>${bestTarget.player.name}（${bestTarget.player.role}）</b> 的地区
         <img src="${bestTarget.card.img}" title="${districtNameMap[bestTarget.card.name] || bestTarget.card.name}" style="width:32px;height:44px;vertical-align:middle;border-radius:4px;">
         <b>${districtNameMap[bestTarget.card.name] || bestTarget.card.name}</b>，支付${bestTarget.cost}金币。
       </div>
