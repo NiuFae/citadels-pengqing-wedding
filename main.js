@@ -3094,7 +3094,57 @@ function showWarlordSkill(players, onFinish) {
 
 showAllPlayersPanel(players, () => {
   showWarlordSkill(players, () => {
-    // 第一回合彻底结束，进入结算或下一流程
+    showGameResult(); // 这里进入结算
   });
 });
+
+function showGameResult() {
+  // 计算分数
+  const results = players.map(p => {
+    const districtScore = (p.built || []).reduce((sum, card) => sum + (card.score || 0), 0);
+    return {
+      name: p.name,
+      role: p.role,
+      score: districtScore + (p.coins || 0)
+    };
+  });
+
+  // 按分数降序排序
+  results.sort((a, b) => b.score - a.score);
+
+  // 展示结果
+  let html = `<div style="font-size:1.3rem;color:#ffe6b3;text-align:center;margin-bottom:18px;">游戏结算</div>`;
+  html += `<table style="width:100%;color:#ffe6b3;font-size:1.1rem;text-align:center;">`;
+  html += `<tr><th>排名</th><th>姓名</th><th>角色</th><th>总分</th></tr>`;
+  results.forEach((r, idx) => {
+    html += `<tr>
+      <td style="padding:6px 0;">${idx+1}</td>
+      <td>${r.name}</td>
+      <td>${r.role}</td>
+      <td>${r.score}</td>
+    </tr>`;
+  });
+  html += `</table>
+    <div style="text-align:center;margin-top:18px;">
+      <button class="main-btn" onclick="location.reload()">再玩一次</button>
+    </div>
+  `;
+
+  // 弹窗
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.left = '0'; popup.style.top = '0'; popup.style.right = '0'; popup.style.bottom = '0';
+  popup.style.background = 'rgba(0,0,0,0.92)';
+  popup.style.zIndex = '7000';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.innerHTML = `
+    <div style="background:#1a1a1a;padding:24px 18px 16px 18px;border-radius:16px;max-width:520px;width:96vw;box-shadow:0 2px 16px #000a;">
+      ${html}
+    </div>
+  `;
+  document.body.appendChild(popup);
+}
+
 
