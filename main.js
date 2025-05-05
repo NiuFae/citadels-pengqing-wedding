@@ -2682,7 +2682,6 @@ function showArtistPanel() {
     artist.hand = artist.hand.filter(card => !built.includes(card));
 
     // 3. 发动技能：美化1~2个地区
-    // 自动美化最多2个地区（优先高分），每个地区只能有一枚金币
     let beautified = [];
     for (let i = 0; i < built.length && beautified.length < 2 && artist.coins > 0; i++) {
       beautified.push(i); // 记录被美化的 built 索引
@@ -2715,9 +2714,9 @@ function showArtistPanel() {
     // 4. 祝福视频
     document.getElementById('artist-bless-btn').onclick = () => {
       showArtistBlessingVideo(() => {
-        // 5. 行动结束，直接进入下一个角色
-        popup.remove();
-        startWizardTurn(); // 你后续角色的函数
+        // 祝福视频关闭后，直接进入下一个角色
+        if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
+        startWizardTurn();
       });
     };
   };
@@ -2749,7 +2748,7 @@ function showArtistBlessingVideo(onClose) {
     video.play();
   };
   document.getElementById('artist-bless-close').onclick = () => {
-    popup.remove();
+    if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
     if (onClose) onClose();
   };
   video.onended = () => {
@@ -2763,10 +2762,14 @@ function showArtistBlessingVideo(onClose) {
       video.play();
     };
     document.getElementById('artist-bless-close2').onclick = () => {
-      popup.remove();
+      if (popup && popup.parentNode) popup.parentNode.removeChild(popup);
       if (onClose) onClose();
     };
   };
+}
+
+function startWizardTurn() {
+  showWizardPanel();
 }
 
 function showWizardPanel() {
